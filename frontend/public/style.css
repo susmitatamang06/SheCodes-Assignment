@@ -1,10 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Allura&family=Edu+VIC+WA+NT+Hand+Pre:wght@400..700&family=Playball&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
 
 *{  
     margin: 0;
     padding: 0; 
-    box-sizing: 0;
+    box-sizing: border-box;
     font-family: "Roboto Condensed", sans-serif;
     /* border: .1rem solid red; */
 }
@@ -213,39 +212,63 @@ h3{
 }
 
 
+/* ========================================
+   FOOD MENU CARDS
+======================================== */
 
-
-
-/* SECTION 02 */
-
-.order-card{
-    flex: 1;
-    /* flex: 0 0 calc(25% - 1.5rem); */
-    flex-basis: 300px;
+.food-card {
+    flex: 0 0 210px;
+    width: 210px;
+    max-width: 210px;
     background: var(--pure-white);
-    padding: 0 1rem 2rem 1rem;
-    border: .1rem solid var(--gold-finger); 
+    padding: 15px;
+    border: .1rem solid var(--gold-finger);
     border-radius: 2rem;
-    box-shadow: rgba(0, 0, 0, 0.05) 8px 8px 8px,
-    rgba(0, 0, 0, 0.05) 8px 8px 8px inset;
+    box-shadow:
+        rgba(0, 0, 0, 0.05) 8px 8px 8px,
+        rgba(0, 0, 0, 0.05) 8px 8px 8px inset;
 }
 
-.order-card img{
-    width: 15rem;
+.food-card .card-image {
+    width: 150px;
+    height: 120px;
+    margin: 0 auto 10px;
+}
+
+.food-card .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
     filter: drop-shadow(
         rgba(0, 0, 0, 0.2) 0 10px 10px
     );
 }
 
-h4{
-    font-size: 1.8rem;
-    color: var(--lead);
+.food-card h4 {
+    font-size: 16px;
+    margin: 6px 0;
 }
 
-.order-card .price{
-    font-size: 1.7rem;
+.food-card .price {
+    font-size: 15px;
     color: var(--gold-finger);
-    padding: 1.3rem 0 2rem 0;
+    padding: 8px 0;
+}
+
+.food-card .product-category {
+    margin: 4px 0 8px;
+    font-size: 12px;
+    opacity: .6;
+}
+
+.food-card .card-btn {
+    font-size: 13px;
+    padding: 8px 14px;
+}
+
+.food-card .card-btn.added {
+    background: #28a745;
+    color: var(--pure-white);
 }
 
 /* CART TAB STYLING */
@@ -435,7 +458,41 @@ h4{
 }
 
 
+/* =========================================
+   CUSTOMER PROFILE ICON
+========================================= */
 
+.customer-profile {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.customer-profile i {
+    font-size: 35px;
+}
+
+.customer-profile:hover {
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+
+    .customer-profile {
+        width: 40px;
+        height: 40px;
+    }
+
+    .customer-profile i {
+        font-size: 30px;
+    }
+
+}
 
 
 
@@ -500,5 +557,164 @@ h4{
     /* SECTION 01 */
     h2{
         font-size: 3rem;
+    }
+}
+
+/* =========================================
+   EXPLORE MENU
+========================================= */
+
+.menu-description {
+    margin-top: 10px;
+    opacity: 0.7;
+}
+
+
+/* =========================================
+   EXPLORE MENU HEADING
+========================================= */
+
+.explore-menu-heading {
+    margin-top: 80px;
+}
+
+
+/* =========================================
+   CATEGORY BUTTONS
+========================================= */
+
+.menu-categories {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    margin-top: 30px;
+}
+
+
+.category-btn {
+    border: none;
+
+    padding: 10px 22px;
+
+    border-radius: 25px;
+
+    background: #f3f3f3;
+
+    color: #333;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+
+.category-btn:hover {
+    transform: translateY(-2px);
+}
+
+
+.category-btn.active {
+    background: #ff6b35;
+
+    color: white;
+}
+
+
+/* =========================================
+   EXPLORE PRODUCTS
+========================================= */
+
+.explore-list {
+    margin-bottom: 50px;
+}
+
+
+/* =========================================
+   PRODUCT CATEGORY
+========================================= */
+
+.product-category {
+    margin-top: 5px;
+
+    font-size: 13px;
+
+    opacity: 0.6;
+}
+
+
+/* =========================================
+   POPULAR SECTION
+========================================= */
+
+.popular-list {
+    margin-bottom: 20px;
+}
+
+
+/* =========================================
+   MOBILE MENU
+========================================= */
+
+@media (max-width: 600px) {
+
+    .explore-menu-heading {
+        margin-top: 60px;
+    }
+
+
+    .menu-categories {
+        gap: 8px;
+    }
+
+
+    .category-btn {
+        padding: 8px 16px;
+
+        font-size: 14px;
+    }
+
+}
+
+
+/* =========================================
+   SMALL SCREEN FOOD CARDS
+========================================= */
+
+@media (max-width: 600px) {
+
+    .card-list {
+        gap: 12px;
+    }
+
+    .food-card {
+        flex-basis: 170px;
+        width: 170px;
+        max-width: 170px;
+        padding: 12px;
+    }
+
+    .food-card .card-image {
+        width: 125px;
+        height: 100px;
+    }
+
+    .food-card h4 {
+        font-size: 14px;
+    }
+
+    .food-card .price {
+        font-size: 14px;
+    }
+
+    .food-card .card-btn {
+        font-size: 12px;
+        padding: 7px 11px;
     }
 }
