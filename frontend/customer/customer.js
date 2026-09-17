@@ -22,32 +22,119 @@ const categoryButtons = document.querySelectorAll(".category-btn");
 let productList = [];
 let cart = quickBites.getCart();
 
-
 // ========================================
 // LOAD PRODUCTS
 // ========================================
 
-loadProducts();
+const PRODUCTS_KEY = "quickBitesProducts";
+
 
 async function loadProducts() {
-    try {
-        const response = await fetch("../public/products.json");
 
-        if (!response.ok) {
-            throw new Error("Could not load products.");
+    /*
+        First check localStorage.
+
+        Admin products are stored here.
+    */
+
+    const savedProducts =
+        localStorage.getItem(PRODUCTS_KEY);
+
+
+    if (savedProducts) {
+
+        try {
+
+            productList =
+                JSON.parse(savedProducts);
+
+
+            showPopularProducts();
+
+            showExploreProducts("All");
+
+            updateCartButtons();
+
+            return;
+
+        }
+        catch (error) {
+
+            console.error(
+                "Could not read saved products:",
+                error
+            );
+
         }
 
-        productList = await response.json();
+    }
+
+
+
+    /*
+        If there are no products in localStorage,
+        load the original products.json.
+    */
+
+    try {
+
+        const response =
+            await fetch("../public/products.json");
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Could not load products"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        productList = data;
+
+
+
+        /*
+            Save the original products
+            to localStorage.
+
+            This creates the shared product
+            list used by Admin and Customer.
+        */
+
+        localStorage.setItem(
+            PRODUCTS_KEY,
+            JSON.stringify(productList)
+        );
+
+
 
         showPopularProducts();
-        showExploreProducts("All");
-        updateCart();
 
-    } catch (error) {
-        console.error("Error loading products:", error);
+        showExploreProducts("All");
+
+        updateCartButtons();
+
     }
+
+    catch (error) {
+
+        console.error(
+            "Error loading products:",
+            error
+        );
+
+    }
+
 }
 
+
+loadProducts();
 
 // ========================================
 // CREATE PRODUCT CARD

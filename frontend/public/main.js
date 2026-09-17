@@ -65,7 +65,7 @@ const showCards = () => {
     productList.forEach(product => {
 
         const orderCard = document.createElement('div');
-        orderCard.classList.add('order-card');
+        orderCard.classList.add('food-card');
 
         orderCard.innerHTML = `
         <div class="card-image">

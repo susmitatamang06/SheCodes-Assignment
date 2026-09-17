@@ -264,6 +264,29 @@
     margin-bottom: 15px;
 }
 
+.admin-footer {
+    margin-top: 5rem;
+    padding: 3rem 2rem;
+    text-align: center;
+    background: var(--hint-yellow);
+    border-top: 0px solid var(--gold-finger);
+    border-radius: 0 0 1rem 1rem;
+}
+
+.admin-footer-logo {
+    font-family: "Playball", cursive;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--gold-finger);
+    margin-bottom: .8rem;
+}
+
+.admin-footer p {
+    margin: 0;
+    font-size: 1rem;
+    color: #777;
+}
+
 
 /* ================= MOBILE ================= */
 
