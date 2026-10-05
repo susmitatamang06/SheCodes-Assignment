@@ -1,10 +1,14 @@
 // ==================================================
 // QUICK BITES - ADMIN ORDERS
+// Backend connected
 // ==================================================
 
-const ORDERS_KEY = "quickBitesOrders";
+const API_BASE_URL = "http://127.0.0.1:8080";
 
 let orders = [];
+let orderItems = [];
+let riders = [];
+let deliveries = [];
 
 
 // ==================================================
@@ -23,9 +27,6 @@ const statusFilter =
 const orderCount =
     document.querySelector("#order-count");
 
-
-// Modal
-
 const orderModal =
     document.querySelector("#order-modal");
 
@@ -42,223 +43,260 @@ const closeModalBtn =
     document.querySelector("#close-modal-btn");
 
 
-
 // ==================================================
-// MOBILE MENU
-// ==================================================
-
-const hamburger =
-    document.querySelector(".hamburger");
-
-const mobileMenu =
-    document.querySelector(".mobile-menu");
-
-
-if (hamburger && mobileMenu) {
-
-    hamburger.addEventListener(
-        "click",
-        function (event) {
-
-            event.preventDefault();
-
-            mobileMenu.classList.toggle(
-                "mobile-menu-active"
-            );
-
-
-            const icon =
-                hamburger.querySelector("i");
-
-
-            if (icon) {
-
-                icon.classList.toggle(
-                    "fa-bars"
-                );
-
-                icon.classList.toggle(
-                    "fa-xmark"
-                );
-
-            }
-
-        }
-    );
-
-
-    mobileMenu
-        .querySelectorAll("a")
-        .forEach(link => {
-
-            link.addEventListener(
-                "click",
-                function () {
-
-                    mobileMenu.classList.remove(
-                        "mobile-menu-active"
-                    );
-
-                }
-            );
-
-        });
-
-}
-
-
-
-// ==================================================
-// LOAD ORDERS
+// LOAD ALL ORDER PAGE DATA
 // ==================================================
 
-function loadOrders() {
+async function loadOrders() {
 
     try {
 
-        const savedOrders =
-            localStorage.getItem(ORDERS_KEY);
+        // ------------------------------------------
+        // Check authentication
+        // ------------------------------------------
+
+        const authResponse =
+            await fetch(
+                `${API_BASE_URL}/api/auth/me`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
 
 
-        if (savedOrders) {
+        if (!authResponse.ok) {
 
-            orders =
-                JSON.parse(savedOrders);
+            throw new Error(
+                `Authentication check failed: ${authResponse.status}`
+            );
 
         }
-        else {
 
-            orders = [];
+
+        // ------------------------------------------
+        // Load orders
+        // ------------------------------------------
+
+        const ordersResponse =
+            await fetch(
+                `${API_BASE_URL}/api/orders`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+
+        if (!ordersResponse.ok) {
+
+            throw new Error(
+                `Failed to load orders: ${ordersResponse.status}`
+            );
 
         }
 
-    }
 
-    catch (error) {
+        orders =
+            await ordersResponse.json();
+
+
+        // ------------------------------------------
+        // Load order items
+        // ------------------------------------------
+
+        const itemsResponse =
+            await fetch(
+                `${API_BASE_URL}/api/order-items`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+
+        if (!itemsResponse.ok) {
+
+            throw new Error(
+                `Failed to load order items: ${itemsResponse.status}`
+            );
+
+        }
+
+
+        orderItems =
+            await itemsResponse.json();
+
+
+        // ------------------------------------------
+        // Load riders
+        // ------------------------------------------
+
+        await loadRiders();
+
+
+        // ------------------------------------------
+        // Load deliveries
+        //
+        // This is important because the deliveries
+        // table contains the currently assigned rider.
+        // ------------------------------------------
+
+        await loadDeliveries();
+
+
+        // ------------------------------------------
+        // Display orders
+        // ------------------------------------------
+
+        displayOrders();
+
+
+    } catch (error) {
 
         console.error(
             "Could not load orders:",
             error
         );
 
-        orders = [];
 
-    }
+        if (ordersList) {
 
+            ordersList.innerHTML = `
 
-    displayOrders();
+                <div class="empty-orders">
 
-}
+                    <i class="fa-solid fa-circle-exclamation"></i>
 
+                    <h3>
+                        Could Not Load Orders
+                    </h3>
 
+                    <p>
+                        ${escapeHTML(error.message)}
+                    </p>
 
-// ==================================================
-// SAVE ORDERS
-// ==================================================
+                </div>
 
-function saveOrders() {
+            `;
 
-    localStorage.setItem(
-        ORDERS_KEY,
-        JSON.stringify(orders)
-    );
-
-}
-
-
-
-// ==================================================
-// PARSE PRICE
-// ==================================================
-
-function parsePrice(price) {
-
-    return Number(
-        String(price)
-            .replace("Rs.", "")
-            .replace(/,/g, "")
-    ) || 0;
-
-}
-
-
-
-// ==================================================
-// CALCULATE TOTAL
-// ==================================================
-
-function calculateOrderTotal(order) {
-
-    let total = 0;
-
-
-    if (
-        order.items &&
-        Array.isArray(order.items)
-    ) {
-
-        order.items.forEach(item => {
-
-            const price =
-                parsePrice(item.price);
-
-
-            const quantity =
-                Number(item.quantity) || 0;
-
-
-            total +=
-                price * quantity;
-
-        });
-
-    }
-
-
-    return total;
-
-}
-
-
-
-// ==================================================
-// STATUS CLASS
-// ==================================================
-
-function getStatusClass(status) {
-
-    switch (
-        String(status || "").toLowerCase()
-    ) {
-
-        case "preparing":
-
-            return "status-preparing";
-
-
-        case "out for delivery":
-
-            return "status-delivery";
-
-
-        case "delivered":
-
-            return "status-delivered";
-
-
-        case "cancelled":
-
-            return "status-cancelled";
-
-
-        default:
-
-            return "";
+        }
 
     }
 
 }
 
+
+// ==================================================
+// LOAD RIDERS
+// ==================================================
+
+async function loadRiders() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/users/riders`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Failed to load riders: ${response.status}`
+            );
+
+        }
+
+
+        riders =
+            await response.json();
+
+
+        console.log(
+            "Riders loaded:",
+            riders
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Could not load riders:",
+            error
+        );
+
+
+        riders = [];
+
+    }
+
+}
+
+
+// ==================================================
+// LOAD DELIVERIES
+//
+// Delivery records contain:
+// - order_id
+// - rider_id
+// - delivery_status
+//
+// We use this to determine which rider is already
+// assigned to each order.
+// ==================================================
+
+async function loadDeliveries() {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/deliveries`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Failed to load deliveries: ${response.status}`
+            );
+
+        }
+
+
+        deliveries =
+            await response.json();
+
+
+        console.log(
+            "Deliveries loaded:",
+            deliveries
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Could not load deliveries:",
+            error
+        );
+
+
+        deliveries = [];
+
+    }
+
+}
 
 
 // ==================================================
@@ -268,61 +306,63 @@ function getStatusClass(status) {
 function getFilteredOrders() {
 
     const searchTerm =
-        searchInput.value
-            .trim()
-            .toLowerCase();
+        searchInput
+            ? searchInput.value.trim().toLowerCase()
+            : "";
 
 
     const selectedStatus =
-        statusFilter.value;
+        statusFilter
+            ? statusFilter.value
+            : "All";
+
+
+    const normalizedSelectedStatus =
+        String(selectedStatus)
+            .trim()
+            .toLowerCase()
+            .replace(/-/g, "_")
+            .replace(/ /g, "_");
 
 
     return [...orders]
-        .reverse()
+
+        .sort((a, b) => {
+
+            return (
+                new Date(b.order_date) -
+                new Date(a.order_date)
+            );
+
+        })
+
         .filter(order => {
 
-
             const orderId =
-                String(order.id || "")
+                String(order.order_id || "")
                     .toLowerCase();
 
 
-            const customerName =
-                String(
-                    order.customerName || ""
-                )
+            const userId =
+                String(order.user_id || "")
                     .toLowerCase();
 
 
-            const phone =
-                String(
-                    order.phone || ""
-                )
+            const status =
+                String(order.order_status || "")
+                    .trim()
                     .toLowerCase();
 
 
             const matchesSearch =
-
                 searchTerm === "" ||
-
-                orderId.includes(
-                    searchTerm
-                ) ||
-
-                customerName.includes(
-                    searchTerm
-                ) ||
-
-                phone.includes(
-                    searchTerm
-                );
+                orderId.includes(searchTerm) ||
+                userId.includes(searchTerm);
 
 
             const matchesStatus =
-
-                selectedStatus === "All" ||
-
-                order.status === selectedStatus;
+                normalizedSelectedStatus === "all" ||
+                status === normalizedSelectedStatus;
 
 
             return (
@@ -335,12 +375,18 @@ function getFilteredOrders() {
 }
 
 
-
 // ==================================================
 // DISPLAY ORDERS
 // ==================================================
 
 function displayOrders() {
+
+    if (!ordersList) {
+
+        return;
+
+    }
+
 
     ordersList.innerHTML = "";
 
@@ -349,17 +395,24 @@ function displayOrders() {
         getFilteredOrders();
 
 
-    orderCount.textContent =
-        `${filteredOrders.length} ${
-            filteredOrders.length === 1
+    // ------------------------------------------
+    // Order count
+    // ------------------------------------------
+
+    if (orderCount) {
+
+        orderCount.textContent =
+            `${filteredOrders.length} ${filteredOrders.length === 1
                 ? "order"
                 : "orders"
-        }`;
+            }`;
+
+    }
 
 
-    // ==================================================
-    // NO ORDERS
-    // ==================================================
+    // ------------------------------------------
+    // No orders
+    // ------------------------------------------
 
     if (filteredOrders.length === 0) {
 
@@ -386,30 +439,20 @@ function displayOrders() {
     }
 
 
-
-    // ==================================================
-    // CREATE ORDER CARDS
-    // ==================================================
+    // ------------------------------------------
+    // Create each order card
+    // ------------------------------------------
 
     filteredOrders.forEach(order => {
 
+        const items =
+            getOrderItems(order.order_id);
+
 
         const total =
-            calculateOrderTotal(order);
-
-
-        const customerName =
-            order.customerName ||
-            "Customer";
-
-
-        const status =
-            order.status ||
-            "Preparing";
-
-
-        const itemNames =
-            getItemNames(order);
+            Number(
+                order.total_amount || 0
+            );
 
 
         const card =
@@ -422,23 +465,24 @@ function displayOrders() {
 
         card.innerHTML = `
 
-            <!-- ORDER TOP -->
-
             <div class="order-card-top">
-
 
                 <div class="order-main-info">
 
                     <span class="order-id">
 
-                        #${escapeHTML(order.id)}
+                        #${escapeHTML(
+            order.order_id
+        )}
 
                     </span>
 
 
                     <span class="order-customer">
 
-                        ${escapeHTML(customerName)}
+                        Customer #${escapeHTML(
+            order.user_id
+        )}
 
                     </span>
 
@@ -448,9 +492,10 @@ function displayOrders() {
                         <i class="fa-regular fa-calendar"></i>
 
                         ${escapeHTML(
-                            order.date ||
-                            "Date unavailable"
-                        )}
+            formatDate(
+                order.order_date
+            )
+        )}
 
                     </span>
 
@@ -458,20 +503,23 @@ function displayOrders() {
 
 
                 <span
-                    class="order-status ${getStatusClass(status)}">
+                    class="order-status ${getStatusClass(
+            order.order_status
+        )}"
+                >
 
-                    ${escapeHTML(status)}
+                    ${escapeHTML(
+            formatStatus(
+                order.order_status
+            )
+        )}
 
                 </span>
 
             </div>
 
 
-
-            <!-- ORDER CONTENT -->
-
             <div class="order-card-content">
-
 
                 <div class="order-items">
 
@@ -484,7 +532,9 @@ function displayOrders() {
 
                     <div class="order-items-list">
 
-                        ${escapeHTML(itemNames)}
+                        ${escapeHTML(
+            getItemNames(items)
+        )}
 
                     </div>
 
@@ -511,69 +561,95 @@ function displayOrders() {
             </div>
 
 
-
-            <!-- ORDER BOTTOM -->
-
             <div class="order-card-bottom">
-
 
                 <select
                     class="order-status-select"
-                    data-id="${escapeHTML(order.id)}"
+                    data-id="${escapeHTML(
+            order.order_id
+        )}"
                 >
 
-                    <option value="Preparing"
-                        ${status === "Preparing"
-                            ? "selected"
-                            : ""}>
+                    <option
+                        value="PLACED"
+                        ${order.order_status === "PLACED"
+                ? "selected"
+                : ""
+            }
+                    >
+                        Placed
+                    </option>
 
+
+                    <option
+                        value="CONFIRMED"
+                        ${order.order_status === "CONFIRMED"
+                ? "selected"
+                : ""
+            }
+                    >
+                        Confirmed
+                    </option>
+
+
+                    <option
+                        value="PREPARING"
+                        ${order.order_status === "PREPARING"
+                ? "selected"
+                : ""
+            }
+                    >
                         Preparing
-
                     </option>
 
 
-                    <option value="Out for Delivery"
-                        ${status === "Out for Delivery"
-                            ? "selected"
-                            : ""}>
+                    <option
+                        value="READY"
+                        ${order.order_status === "READY"
+                ? "selected"
+                : ""
+            }
+                    >
+                        Ready
+                    </option>
 
+
+                    <option
+                        value="OUT_FOR_DELIVERY"
+                        ${order.order_status === "OUT_FOR_DELIVERY"
+                ? "selected"
+                : ""
+            }
+                    >
                         Out for Delivery
-
                     </option>
 
 
-                    <option value="Delivered"
-                        ${status === "Delivered"
-                            ? "selected"
-                            : ""}>
-
+                    <option
+                        value="DELIVERED"
+                        ${order.order_status === "DELIVERED"
+                ? "selected"
+                : ""
+            }
+                    >
                         Delivered
-
                     </option>
 
 
-                    <option value="Cancelled"
-                        ${status === "Cancelled"
-                            ? "selected"
-                            : ""}>
-
+                    <option
+                        value="CANCELLED"
+                        ${order.order_status === "CANCELLED"
+                ? "selected"
+                : ""
+            }
+                    >
                         Cancelled
-
                     </option>
 
                 </select>
 
 
-                <button
-                    type="button"
-                    class="view-order-btn"
-                    data-id="${escapeHTML(order.id)}">
-
-                    <i class="fa-solid fa-eye"></i>
-
-                    View Details
-
-                </button>
+                ${createRiderAssignmentHTML(order)}
 
             </div>
 
@@ -589,18 +665,396 @@ function displayOrders() {
 
 }
 
+// ==================================================
+// CREATE RIDER ASSIGNMENT HTML
+// ==================================================
+
+function createRiderAssignmentHTML(order) {
+
+    const orderStatus =
+        String(
+            order.order_status || ""
+        ).toUpperCase();
+
+
+    // ------------------------------------------
+    // Find existing delivery for this order
+    // ------------------------------------------
+
+    const existingDelivery =
+        deliveries.find(
+            delivery =>
+                Number(
+                    delivery.order_id
+                ) ===
+                Number(
+                    order.order_id
+                )
+        );
+
+
+    // ------------------------------------------
+    // Get currently assigned rider
+    // ------------------------------------------
+
+    const assignedRiderId =
+        existingDelivery
+            ? Number(
+                existingDelivery.rider_id
+            )
+            : null;
+
+
+    const assignedRider =
+        assignedRiderId
+            ? riders.find(
+                rider =>
+                    Number(rider.id) ===
+                    assignedRiderId
+            )
+            : null;
+
+
+    // ------------------------------------------
+    // Don't assign cancelled/delivered orders
+    // ------------------------------------------
+
+    if (
+        orderStatus === "CANCELLED" ||
+        orderStatus === "DELIVERED"
+    ) {
+
+        return `
+
+            <div class="rider-assignment">
+
+                <div class="assignment-disabled">
+
+                    <i class="fa-solid fa-ban"></i>
+
+                    <span>
+                        Rider assignment unavailable
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    // ------------------------------------------
+    // No riders available
+    // ------------------------------------------
+
+    if (
+        !riders ||
+        riders.length === 0
+    ) {
+
+        return `
+
+            <div class="rider-assignment">
+
+                <div class="assignment-disabled">
+
+                    <i class="fa-solid fa-user-slash"></i>
+
+                    <span>
+                        No riders available
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    // ------------------------------------------
+    // Build rider options
+    // ------------------------------------------
+
+    let options = `
+
+        <option value="">
+
+            Select Rider
+
+        </option>
+
+    `;
+
+
+    riders.forEach(
+        rider => {
+
+            const isSelected =
+                assignedRiderId !== null &&
+                Number(rider.id) ===
+                assignedRiderId;
+
+
+            options += `
+
+                <option
+                    value="${escapeHTML(
+                        rider.id
+                    )}"
+                    ${
+                        isSelected
+                            ? "selected"
+                            : ""
+                    }
+                >
+
+                    ${escapeHTML(
+                        rider.name ||
+                        "Unnamed Rider"
+                    )}
+
+                    ${
+                        rider.email
+                            ? ` - ${escapeHTML(
+                                rider.email
+                            )}`
+                            : ""
+                    }
+
+                </option>
+
+            `;
+
+        }
+    );
+
+
+    // ------------------------------------------
+    // Assignment text
+    // ------------------------------------------
+
+    const assignmentTitle =
+        assignedRider
+            ? "Assigned Rider"
+            : "Delivery Rider";
+
+
+    const assignmentDescription =
+        assignedRider
+            ? `Currently assigned to ${escapeHTML(
+                assignedRider.name
+            )}`
+            : "Assign a rider to this order";
+
+
+    const buttonText =
+        assignedRider
+            ? "Reassign Rider"
+            : "Assign Rider";
+
+
+    const buttonIcon =
+        assignedRider
+            ? "fa-user-pen"
+            : "fa-user-check";
+
+
+    // ------------------------------------------
+    // Return UI
+    // ------------------------------------------
+
+    return `
+
+        <div class="rider-assignment">
+
+            <div class="rider-assignment-label">
+
+                <i class="fa-solid fa-motorcycle"></i>
+
+                <div>
+
+                    <strong>
+
+                        ${assignmentTitle}
+
+                    </strong>
+
+                    <small>
+
+                        ${assignmentDescription}
+
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <select
+                class="rider-select"
+                data-order-id="${escapeHTML(
+                    order.order_id
+                )}"
+            >
+
+                ${options}
+
+            </select>
+
+
+            <button
+                type="button"
+                class="assign-rider-btn"
+                data-order-id="${escapeHTML(
+                    order.order_id
+                )}"
+            >
+
+                <i
+                    class="fa-solid ${buttonIcon}"
+                ></i>
+
+                ${buttonText}
+
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+// ==================================================
+// ATTACH ORDER EVENTS
+// ==================================================
+
+function attachOrderEvents() {
+
+    // ------------------------------------------
+    // Order status
+    // ------------------------------------------
+
+    document
+        .querySelectorAll(".order-status-select")
+        .forEach(select => {
+
+            select.addEventListener(
+                "change",
+                function () {
+
+                    updateOrderStatus(
+                        this.dataset.id,
+                        this.value
+                    );
+
+                }
+            );
+
+        });
+
+
+    // ------------------------------------------
+    // View order
+    // ------------------------------------------
+
+    document
+        .querySelectorAll(".view-order-btn")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    showOrderDetails(
+                        this.dataset.id
+                    );
+
+                }
+            );
+
+        });
+
+
+    // ------------------------------------------
+    // Rider assignment
+    // ------------------------------------------
+
+    document
+        .querySelectorAll(".assign-rider-btn")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                async function (event) {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const orderId =
+                        this.getAttribute(
+                            "data-order-id"
+                        );
+
+
+                    if (!orderId) {
+
+                        console.error(
+                            "No order ID found on rider button."
+                        );
+
+                        alert(
+                            "Could not identify the order."
+                        );
+
+                        return;
+
+                    }
+
+
+                    await assignRiderToOrder(
+                        orderId,
+                        this
+                    );
+
+                }
+            );
+
+        });
+
+}
+// ==================================================
+// GET ORDER ITEMS
+// ==================================================
+
+function getOrderItems(orderId) {
+
+    return orderItems.filter(item =>
+
+        Number(
+            item.order_id
+        ) ===
+        Number(
+            orderId
+        )
+
+    );
+
+}
 
 
 // ==================================================
 // GET ITEM NAMES
 // ==================================================
 
-function getItemNames(order) {
+function getItemNames(items) {
 
     if (
-        !order.items ||
-        !Array.isArray(order.items) ||
-        order.items.length === 0
+        !items ||
+        items.length === 0
     ) {
 
         return "No items available";
@@ -608,45 +1062,23 @@ function getItemNames(order) {
     }
 
 
-    return order.items
+    return items
+
         .map(item => {
 
             const quantity =
-                Number(item.quantity) || 1;
+                Number(
+                    item.quantity || 0
+                );
 
 
-            return `${item.name} × ${quantity}`;
+            return `${ item.food_name } × ${ quantity } `;
 
         })
+
         .join(" · ");
 
 }
-
-
-
-// ==================================================
-// GET ADDRESS
-// ==================================================
-
-function getAddress(order) {
-
-    let address =
-        order.address ||
-        "Not available";
-
-
-    if (order.city) {
-
-        address +=
-            `, ${order.city}`;
-
-    }
-
-
-    return address;
-
-}
-
 
 
 // ==================================================
@@ -655,8 +1087,9 @@ function getAddress(order) {
 
 function attachOrderEvents() {
 
-
-    // STATUS
+    // ------------------------------------------
+    // Order status
+    // ------------------------------------------
 
     document
         .querySelectorAll(
@@ -679,8 +1112,9 @@ function attachOrderEvents() {
         });
 
 
-
-    // VIEW DETAILS
+    // ------------------------------------------
+    // View order
+    // ------------------------------------------
 
     document
         .querySelectorAll(
@@ -701,15 +1135,284 @@ function attachOrderEvents() {
 
         });
 
+
+    // ------------------------------------------
+    // Assign rider
+    // ------------------------------------------
+
+    document
+        .querySelectorAll(
+            ".assign-rider-btn"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    assignRiderToOrder(
+                        this.dataset.orderId,
+                        this
+                    );
+
+                }
+            );
+
+        });
+
 }
 
-
-
 // ==================================================
-// UPDATE STATUS
+// ASSIGN RIDER TO ORDER
 // ==================================================
 
-function updateOrderStatus(
+async function assignRiderToOrder(
+    orderId,
+    button
+) {
+
+    console.log(
+        "Assign rider clicked for order:",
+        orderId
+    );
+
+
+    // ------------------------------------------
+    // Find the select belonging to this order
+    // ------------------------------------------
+
+    const riderSelect =
+        document.querySelector(
+            `.rider-select[data-order-id="${CSS.escape(
+                String(orderId)
+            )}"]`
+        );
+
+
+    if (!riderSelect) {
+
+        console.error(
+            "Rider select not found for order:",
+            orderId
+        );
+
+        alert(
+            "Could not find the rider selection box."
+        );
+
+        return;
+
+    }
+
+
+    const riderId =
+        riderSelect.value;
+
+
+    // ------------------------------------------
+    // Validate rider
+    // ------------------------------------------
+
+    if (!riderId) {
+
+        alert(
+            "Please select a rider first."
+        );
+
+        riderSelect.focus();
+
+        return;
+
+    }
+
+
+    // ------------------------------------------
+    // Find selected rider
+    // ------------------------------------------
+
+    const selectedRider =
+        riders.find(
+            rider =>
+                String(rider.id) ===
+                String(riderId)
+        );
+
+
+    if (!selectedRider) {
+
+        alert(
+            "Selected rider could not be found."
+        );
+
+        return;
+
+    }
+
+
+    // ------------------------------------------
+    // Find order
+    // ------------------------------------------
+
+    const order =
+        orders.find(
+            item =>
+                String(item.order_id) ===
+                String(orderId)
+        );
+
+
+    if (!order) {
+
+        alert(
+            "Order could not be found."
+        );
+
+        return;
+
+    }
+
+
+    // ------------------------------------------
+    // Prevent double clicking
+    // ------------------------------------------
+
+    if (button) {
+
+        button.disabled = true;
+
+        button.innerHTML = `
+
+            <i class="fa-solid fa-spinner fa-spin"></i>
+
+            Assigning...
+
+        `;
+
+    }
+
+
+    try {
+
+        // --------------------------------------
+        // Create / update delivery
+        // --------------------------------------
+
+        const delivery = {
+
+            order_id:
+                Number(order.order_id),
+
+            rider_id:
+                Number(selectedRider.id),
+
+            delivery_status:
+                "ASSIGNED"
+
+        };
+
+
+        console.log(
+            "Sending delivery:",
+            delivery
+        );
+
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/deliveries`,
+                {
+                    method: "POST",
+
+                    credentials: "include",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            delivery
+                        )
+
+                }
+            );
+
+
+        const responseText =
+            await response.text();
+
+
+        console.log(
+            "Assignment response:",
+            response.status,
+            responseText
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Failed to assign rider: ${response.status} ${responseText}`
+            );
+
+        }
+
+
+        // --------------------------------------
+        // Success
+        // --------------------------------------
+
+        alert(
+            `Rider ${selectedRider.name} assigned successfully.`
+        );
+
+
+        // --------------------------------------
+        // Reload everything
+        // --------------------------------------
+
+        await loadOrders();
+
+
+    } catch (error) {
+
+        console.error(
+            "Rider assignment error:",
+            error
+        );
+
+
+        alert(
+            `Could not assign rider.\n\n${error.message}`
+        );
+
+
+        if (button) {
+
+            button.disabled = false;
+
+            button.innerHTML = `
+
+                <i class="fa-solid fa-user-check"></i>
+
+                Assign Rider
+
+            `;
+
+        }
+
+    }
+
+}
+
+// ==================================================
+// UPDATE ORDER STATUS
+// ==================================================
+
+async function updateOrderStatus(
     orderId,
     newStatus
 ) {
@@ -717,8 +1420,12 @@ function updateOrderStatus(
     const order =
         orders.find(
             item =>
-                String(item.id) ===
-                String(orderId)
+                String(
+                    item.order_id
+                ) ===
+                String(
+                    orderId
+                )
         );
 
 
@@ -729,29 +1436,135 @@ function updateOrderStatus(
     }
 
 
-    order.status =
-        newStatus;
+    const oldStatus =
+        order.order_status;
 
 
-    saveOrders();
+    try {
 
-    displayOrders();
+        const updatedOrder = {
+
+            user_id:
+                order.user_id,
+
+            address_id:
+                order.address_id,
+
+            order_status:
+                newStatus,
+
+            subtotal:
+                order.subtotal,
+
+            delivery_fee:
+                order.delivery_fee,
+
+            total_amount:
+                order.total_amount,
+
+            order_date:
+                order.order_date
+
+        };
+
+
+        const response =
+            await fetch(
+                `${ API_BASE_URL } /api/orders / ${ orderId } `,
+                {
+                    method: "PUT",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body:
+                        JSON.stringify(
+                            updatedOrder
+                        )
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Failed to update order: ${ response.status } `
+            );
+
+        }
+
+
+        const savedOrder =
+            await response.json();
+
+
+        const index =
+            orders.findIndex(
+                item =>
+                    String(
+                        item.order_id
+                    ) ===
+                    String(
+                        orderId
+                    )
+            );
+
+
+        if (index !== -1) {
+
+            orders[index] =
+                savedOrder;
+
+        }
+
+
+        displayOrders();
+
+
+    } catch (error) {
+
+        console.error(
+            "Order status update error:",
+            error
+        );
+
+
+        alert(
+            "Could not update the order status."
+        );
+
+
+        console.error(
+            "Previous status:",
+            oldStatus
+        );
+
+
+        displayOrders();
+
+    }
 
 }
-
 
 
 // ==================================================
 // SHOW ORDER DETAILS
 // ==================================================
 
-function showOrderDetails(orderId) {
+function showOrderDetails(
+    orderId
+) {
 
     const order =
         orders.find(
             item =>
-                String(item.id) ===
-                String(orderId)
+                String(
+                    item.order_id
+                ) ===
+                String(
+                    orderId
+                )
         );
 
 
@@ -762,281 +1575,231 @@ function showOrderDetails(orderId) {
     }
 
 
-    const total =
-        calculateOrderTotal(order);
+    const items =
+        getOrderItems(
+            order.order_id
+        );
 
 
-    modalOrderId.textContent =
-        `#${order.id}`;
+    if (modalOrderId) {
 
-
-    let itemsHTML = "";
-
-
-    if (
-        order.items &&
-        Array.isArray(order.items) &&
-        order.items.length > 0
-    ) {
-
-        itemsHTML = order.items
-            .map(item => {
-
-                const price =
-                    parsePrice(item.price);
-
-
-                const quantity =
-                    Number(item.quantity) || 1;
-
-
-                const itemTotal =
-                    price * quantity;
-
-
-                const image =
-                    getImagePath(item.image);
-
-
-                return `
-
-                    <div class="modal-item">
-
-
-                        <div class="modal-item-image">
-
-                            <img
-                                src="${image}"
-                                alt="${escapeHTML(item.name)}"
-                                onerror="this.style.display='none'"
-                            >
-
-                        </div>
-
-
-                        <div class="modal-item-info">
-
-                            <h4>
-
-                                ${escapeHTML(item.name)}
-
-                            </h4>
-
-
-                            <p>
-
-                                Rs.${price.toFixed(2)}
-                                ×
-                                ${quantity}
-
-                            </p>
-
-                        </div>
-
-
-                        <div class="modal-item-price">
-
-                            Rs.${itemTotal.toFixed(2)}
-
-                        </div>
-
-                    </div>
-
-                `;
-
-            })
-            .join("");
+        modalOrderId.textContent =
+            `#${ order.order_id } `;
 
     }
-    else {
+
+
+    let itemsHTML =
+        "";
+
+
+    if (items.length > 0) {
+
+        itemsHTML =
+            items
+                .map(item => {
+
+                    const price =
+                        Number(
+                            item.price || 0
+                        );
+
+
+                    const quantity =
+                        Number(
+                            item.quantity || 0
+                        );
+
+
+                    const itemTotal =
+                        Number(
+                            item.subtotal ||
+                            price * quantity
+                        );
+
+
+                    return `
+
+        < div class="modal-item" >
+
+                            <div class="modal-item-info">
+
+                                <h4>
+                                    ${escapeHTML(
+                                        item.food_name
+                                    )}
+                                </h4>
+
+                                <p>
+                                    Rs.${price.toFixed(2)}
+                                    ×
+                                    ${quantity}
+                                </p>
+
+                            </div>
+
+
+                            <div class="modal-item-price">
+
+                                Rs.${itemTotal.toFixed(2)}
+
+                            </div>
+
+                        </div >
+
+        `;
+
+                })
+                .join("");
+
+    } else {
 
         itemsHTML = `
-
-            <p>
-                No items available.
-            </p>
-
+        < p >
+        No items available.
+            </p >
         `;
 
     }
 
 
+    if (orderDetailsContent) {
 
-    orderDetailsContent.innerHTML = `
+        orderDetailsContent.innerHTML = `
 
-        <!-- CUSTOMER -->
+        < div class="detail-row" >
 
-        <div class="detail-row">
+                <strong>
+                    Customer
+                </strong>
 
-            <strong>
-                Customer
-            </strong>
+                <span>
+                    Customer #${escapeHTML(
+                        order.user_id
+                    )}
+                </span>
 
-            <span>
-                ${escapeHTML(
-                    order.customerName ||
-                    "Not available"
-                )}
-            </span>
-
-        </div>
+            </div >
 
 
-        <!-- DATE -->
+            <div class="detail-row">
 
-        <div class="detail-row">
+                <strong>
+                    Date
+                </strong>
 
-            <strong>
-                Date
-            </strong>
+                <span>
+                    ${escapeHTML(
+                        formatDate(
+                            order.order_date
+                        )
+                    )}
+                </span>
 
-            <span>
-                ${escapeHTML(
-                    order.date ||
-                    "Not available"
-                )}
-            </span>
-
-        </div>
-
-
-        <!-- PHONE -->
-
-        <div class="detail-row">
-
-            <strong>
-                Phone
-            </strong>
-
-            <span>
-                ${escapeHTML(
-                    order.phone ||
-                    "Not available"
-                )}
-            </span>
-
-        </div>
+            </div>
 
 
-        <!-- ADDRESS -->
+            <div class="detail-row">
 
-        <div class="detail-row">
+                <strong>
+                    Address ID
+                </strong>
 
-            <strong>
-                Delivery Address
-            </strong>
+                <span>
+                    ${escapeHTML(
+                        order.address_id
+                    )}
+                </span>
 
-            <span>
-                ${escapeHTML(
-                    getAddress(order)
-                )}
-            </span>
-
-        </div>
+            </div>
 
 
-        <!-- PAYMENT -->
+            <div class="detail-row">
 
-        <div class="detail-row">
+                <strong>
+                    Status
+                </strong>
 
-            <strong>
-                Payment Method
-            </strong>
+                <span>
+                    ${escapeHTML(
+                        formatStatus(
+                            order.order_status
+                        )
+                    )}
+                </span>
 
-            <span>
-                ${escapeHTML(
-                    order.paymentMethod ||
-                    "Not available"
-                )}
-            </span>
-
-        </div>
-
-
-        <!-- STATUS -->
-
-        <div class="detail-row">
-
-            <strong>
-                Status
-            </strong>
-
-            <span>
-                ${escapeHTML(
-                    order.status ||
-                    "Preparing"
-                )}
-            </span>
-
-        </div>
+            </div>
 
 
-        <!-- ITEMS -->
+            <div class="modal-items">
 
-        <div class="modal-items">
+                <h3>
+                    Ordered Items
+                </h3>
 
-            <h3>
-                Ordered Items
-            </h3>
+                ${itemsHTML}
 
-            ${itemsHTML}
-
-        </div>
+            </div>
 
 
-        <!-- TOTAL -->
+            <div class="detail-row">
 
-        <div class="detail-row">
+                <strong>
+                    Subtotal
+                </strong>
 
-            <strong>
-                Total
-            </strong>
+                <span>
+                    Rs.${Number(
+                        order.subtotal || 0
+                    ).toFixed(2)}
+                </span>
 
-            <span>
+            </div>
 
-                Rs.${total.toFixed(2)}
 
-            </span>
+            <div class="detail-row">
 
-        </div>
+                <strong>
+                    Delivery Fee
+                </strong>
+
+                <span>
+                    Rs.${Number(
+                        order.delivery_fee || 0
+                    ).toFixed(2)}
+                </span>
+
+            </div>
+
+
+            <div class="detail-row">
+
+                <strong>
+                    Total
+                </strong>
+
+                <span>
+                    Rs.${Number(
+                        order.total_amount || 0
+                    ).toFixed(2)}
+                </span>
+
+            </div>
 
     `;
 
-
-    orderModal.classList.add(
-        "active"
-    );
-
-}
-
-
-
-// ==================================================
-// IMAGE PATH
-// ==================================================
-
-function getImagePath(image) {
-
-    if (!image) {
-
-        return "";
-
     }
 
 
-    if (
-        image.startsWith("../")
-    ) {
+    if (orderModal) {
 
-        return image;
+        orderModal.classList.add(
+            "modal-active"
+        );
 
     }
 
-
-    return `../public/${image}`;
-
 }
-
 
 
 // ==================================================
@@ -1045,137 +1808,243 @@ function getImagePath(image) {
 
 function closeOrderModal() {
 
-    orderModal.classList.remove(
-        "active"
+    if (orderModal) {
+
+        orderModal.classList.remove(
+            "modal-active"
+        );
+
+    }
+
+}
+
+
+if (closeModal) {
+
+    closeModal.addEventListener(
+        "click",
+        closeOrderModal
     );
 
 }
 
 
-closeModal.addEventListener(
-    "click",
-    closeOrderModal
-);
+if (closeModalBtn) {
+
+    closeModalBtn.addEventListener(
+        "click",
+        closeOrderModal
+    );
+
+}
 
 
-closeModalBtn.addEventListener(
-    "click",
-    closeOrderModal
-);
+if (orderModal) {
 
+    orderModal.addEventListener(
+        "click",
+        function (event) {
 
-orderModal.addEventListener(
-    "click",
-    function (event) {
+            if (
+                event.target === orderModal
+            ) {
 
-        if (
-            event.target === orderModal
-        ) {
+                closeOrderModal();
 
-            closeOrderModal();
+            }
 
         }
+    );
+
+}
+
+
+// ==================================================
+// SEARCH / FILTER
+// ==================================================
+
+if (searchInput) {
+
+    searchInput.addEventListener(
+        "input",
+        displayOrders
+    );
+
+}
+
+
+if (statusFilter) {
+
+    statusFilter.addEventListener(
+        "change",
+        displayOrders
+    );
+
+}
+
+
+// ==================================================
+// FORMAT DATE
+// ==================================================
+
+function formatDate(
+    dateValue
+) {
+
+    if (!dateValue) {
+
+        return "Date unavailable";
 
     }
-);
 
 
-
-// ==================================================
-// SEARCH
-// ==================================================
-
-searchInput.addEventListener(
-    "input",
-    displayOrders
-);
-
-
-
-// ==================================================
-// FILTER
-// ==================================================
-
-statusFilter.addEventListener(
-    "change",
-    displayOrders
-);
-
-
-
-// ==================================================
-// LOGOUT
-// ==================================================
-
-function logout() {
-
-    const confirmed =
-        confirm(
-            "Are you sure you want to logout?"
+    const date =
+        new Date(
+            dateValue
         );
 
 
-    if (!confirmed) {
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
 
-        return;
+        return "Date unavailable";
 
     }
 
 
-    window.location.href =
-        "../public/index.html";
+    return date.toLocaleDateString(
+        "en-GB",
+        {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        }
+    );
 
 }
 
 
-document
-    .querySelector("#logout-btn")
-    .addEventListener(
-        "click",
-        function (event) {
+// ==================================================
+// FORMAT STATUS
+// ==================================================
 
-            event.preventDefault();
+function formatStatus(
+    status
+) {
 
-            logout();
+    if (!status) {
 
-        }
-    );
+        return "Unknown";
+
+    }
 
 
-document
-    .querySelector("#mobile-logout")
-    .addEventListener(
-        "click",
-        function (event) {
+    return String(
+        status
+    )
+        .replace(
+            /_/g,
+            " "
+        )
+        .toLowerCase()
+        .replace(
+            /\b\w/g,
+            letter =>
+                letter.toUpperCase()
+        );
 
-            event.preventDefault();
+}
 
-            logout();
 
-        }
-    );
+// ==================================================
+// STATUS CLASS
+// ==================================================
 
+function getStatusClass(
+    status
+) {
+
+    switch (
+        String(
+            status || ""
+        ).toLowerCase()
+    ) {
+
+        case "preparing":
+
+        case "confirmed":
+
+        case "ready":
+
+        case "placed":
+
+            return "status-preparing";
+
+
+        case "out_for_delivery":
+
+            return "status-delivery";
+
+
+        case "delivered":
+
+            return "status-delivered";
+
+
+        case "cancelled":
+
+            return "status-cancelled";
+
+
+        default:
+
+            return "";
+
+    }
+
+}
 
 
 // ==================================================
 // ESCAPE HTML
 // ==================================================
 
-function escapeHTML(value) {
+function escapeHTML(
+    value
+) {
 
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 
 }
 
 
-
 // ==================================================
-// INITIALIZE
+// START
 // ==================================================
 
 loadOrders();

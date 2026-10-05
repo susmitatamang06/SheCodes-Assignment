@@ -1212,3 +1212,386 @@
     }
 
 }
+
+/* =========================================================
+   RIDER ASSIGNMENT
+   ========================================================= */
+
+.rider-assignment {
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.75rem;
+
+    padding: 0.9rem 1rem;
+
+    background: #fffaf0;
+
+    border: 1px solid #f3e4c2;
+
+    border-radius: 1rem;
+
+    position: relative;
+
+}
+
+
+/* ---------------------------------------------------------
+   RIDER SELECT
+--------------------------------------------------------- */
+
+.rider-select {
+
+    flex: 1;
+
+    min-width: 220px;
+
+    height: 44px;
+
+    padding: 0 2.5rem 0 2.7rem;
+
+    border: 1px solid #dedede;
+
+    border-radius: 0.75rem;
+
+    background-color: #ffffff;
+
+    color: var(--lead);
+
+    font-family: inherit;
+
+    font-size: 0.9rem;
+
+    font-weight: 600;
+
+    outline: none;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+
+}
+
+
+.rider-select:hover {
+
+    border-color: var(--gold-finger);
+
+}
+
+
+.rider-select:focus {
+
+    border-color: var(--gold-finger);
+
+    box-shadow:
+        0 0 0 3px rgba(255, 174, 0, 0.12);
+
+}
+
+
+/* ---------------------------------------------------------
+   ASSIGN BUTTON
+--------------------------------------------------------- */
+
+.assign-rider-btn {
+
+    height: 44px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 0.5rem;
+
+    padding: 0 1.1rem;
+
+    border: none;
+
+    border-radius: 0.75rem;
+
+    background: var(--gold-finger);
+
+    color: var(--pure-white);
+
+    font-family: inherit;
+
+    font-size: 0.85rem;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 10px rgba(255, 174, 0, 0.18);
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.assign-rider-btn i {
+
+    font-size: 0.9rem;
+
+}
+
+
+.assign-rider-btn:hover {
+
+    background: var(--lead);
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 6px 14px rgba(0, 0, 0, 0.12);
+
+}
+
+
+.assign-rider-btn:active {
+
+    transform: translateY(0);
+
+}
+
+
+.assign-rider-btn:disabled {
+
+    opacity: 0.7;
+
+    cursor: wait;
+
+    transform: none;
+
+}
+
+
+/* ---------------------------------------------------------
+   ASSIGNMENT DISABLED
+--------------------------------------------------------- */
+
+.assignment-disabled {
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.6rem;
+
+    padding: 0.8rem 1rem;
+
+    color: #999;
+
+    font-size: 0.85rem;
+
+    font-weight: 600;
+
+    background: #f7f7f7;
+
+    border: 1px solid #e7e7e7;
+
+    border-radius: 0.75rem;
+
+}
+
+
+/* ---------------------------------------------------------
+   CURRENT RIDER
+--------------------------------------------------------- */
+
+.assigned-rider-label {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.5rem;
+
+    margin-top: 0.55rem;
+
+    padding-left: 0.25rem;
+
+    color: #555;
+
+    font-size: 0.82rem;
+
+    font-weight: 600;
+
+}
+
+
+.assigned-rider-label::before {
+
+    content: "\f058";
+
+    font-family:
+        "Font Awesome 6 Free";
+
+    font-weight: 900;
+
+    color: #22a447;
+
+    font-size: 0.9rem;
+
+}
+
+
+/* =========================================================
+   RIDER ASSIGNMENT AREA
+   ========================================================= */
+
+.order-card-bottom {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+    gap: 0.8rem;
+
+    padding-top: 1rem;
+
+}
+
+
+/* Put status control above rider assignment */
+
+.order-status-select {
+
+    align-self: flex-end;
+
+    min-width: 175px;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .rider-assignment {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .rider-select {
+
+        width: 100%;
+
+        min-width: 0;
+
+    }
+
+
+    .assign-rider-btn {
+
+        width: 100%;
+
+    }
+
+
+    .order-status-select {
+
+        width: 100%;
+
+        align-self: stretch;
+
+    }
+
+}
+
+/* =========================================================
+   RIDER ASSIGNMENT LABEL
+   ========================================================= */
+
+.rider-assignment-label {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 0.7rem;
+
+    min-width: 175px;
+
+}
+
+
+.rider-assignment-label > i {
+
+    width: 38px;
+
+    height: 38px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 0.7rem;
+
+    background: #fff0cf;
+
+    color: var(--gold-finger);
+
+    font-size: 0.95rem;
+
+}
+
+
+.rider-assignment-label div {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 0.15rem;
+
+}
+
+
+.rider-assignment-label strong {
+
+    color: var(--lead);
+
+    font-size: 0.82rem;
+
+    font-weight: 750;
+
+}
+
+
+.rider-assignment-label small {
+
+    color: #999;
+
+    font-size: 0.7rem;
+
+}

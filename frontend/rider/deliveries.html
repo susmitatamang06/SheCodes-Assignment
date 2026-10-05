@@ -5,51 +5,37 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Deliveries - Quick Bites</title>
 
 
     <!-- ================= FONT AWESOME ================= -->
 
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.0/css/all.min.css"
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer">
 
 
     <!-- ================= PUBLIC CSS ================= -->
 
-    <link
-        rel="stylesheet"
-        href="../public/style.css">
+    <link rel="stylesheet" href="../public/style.css">
 
 
     <!-- ================= RIDER CSS ================= -->
 
-    <link
-        rel="stylesheet"
-        href="rider.css">
+    <link rel="stylesheet" href="rider.css">
 
-    <link
-        rel="stylesheet"
-        href="deliveries.css">
+    <link rel="stylesheet" href="deliveries.css">
 
 
     <!-- ================= RIDER JAVASCRIPT ================= -->
-
-    <script
-        defer
-        src="rider.js">
+    <script defer src="deliveries.js?v=2">
     </script>
 
-    <script
-        defer
-        src="deliveries.js">
+    <script defer src="rider.js">
     </script>
+
+
 
 </head>
 
@@ -69,9 +55,7 @@
 
             <!-- ================= LOGO ================= -->
 
-            <a
-                href="index.html"
-                class="logo">
+            <a href="index.html" class="logo">
 
                 Quick Bites
 
@@ -84,8 +68,7 @@
 
                 <li>
 
-                    <a
-                        href="index.html">
+                    <a href="index.html">
 
                         Dashboard
 
@@ -96,9 +79,7 @@
 
                 <li>
 
-                    <a
-                        href="deliveries.html"
-                        class="active">
+                    <a href="deliveries.html" class="active">
 
                         Deliveries
 
@@ -109,8 +90,7 @@
 
                 <li>
 
-                    <a
-                        href="earnings.html">
+                    <a href="earnings.html">
 
                         Earnings
 
@@ -121,8 +101,7 @@
 
                 <li>
 
-                    <a
-                        href="profile.html">
+                    <a href="profile.html">
 
                         Profile
 
@@ -140,9 +119,7 @@
 
                 <!-- PROFILE -->
 
-                <a
-                    href="profile.html"
-                    class="rider-profile">
+                <a href="profile.html" class="rider-profile">
 
                     <i class="fa-regular fa-circle-user"></i>
 
@@ -151,10 +128,7 @@
 
                 <!-- LOGOUT -->
 
-                <a
-                    href="#"
-                    class="logout-link"
-                    id="logout-btn">
+                <a href="../public/index.html" class="logout-link" id="logout-btn">
 
                     Logout
 
@@ -165,9 +139,7 @@
 
                 <!-- HAMBURGER -->
 
-                <a
-                    href="#"
-                    class="hamburger">
+                <a href="#" class="hamburger">
 
                     <i class="fa-solid fa-bars"></i>
 
@@ -183,8 +155,7 @@
 
                 <li>
 
-                    <a
-                        href="index.html">
+                    <a href="index.html">
 
                         Dashboard
 
@@ -195,8 +166,7 @@
 
                 <li>
 
-                    <a
-                        href="deliveries.html">
+                    <a href="deliveries.html">
 
                         Deliveries
 
@@ -207,8 +177,7 @@
 
                 <li>
 
-                    <a
-                        href="earnings.html">
+                    <a href="earnings.html">
 
                         Earnings
 
@@ -219,8 +188,7 @@
 
                 <li>
 
-                    <a
-                        href="profile.html">
+                    <a href="profile.html">
 
                         My Profile
 
@@ -231,9 +199,7 @@
 
                 <li>
 
-                    <a
-                        href="#"
-                        id="mobile-logout-btn">
+                    <a href="#" id="mobile-logout-btn">
 
                         Logout
 
@@ -420,25 +386,27 @@
 
                         <div class="filter-container">
 
-                            <select
-                                id="status-filter">
+                            <select id="status-filter">
 
                                 <option value="all">
                                     All Deliveries
                                 </option>
 
-                                <option value="Pending">
+                                <option value="ASSIGNED">
                                     Pending
                                 </option>
 
-                                <option value="In Delivery">
-                                    In Delivery
+                                <option value="PICKED_UP">
+                                    Picked Up
                                 </option>
 
-                                <option value="Delivered">
+                                <option value="OUT_FOR_DELIVERY">
+                                    Out for Delivery
+                                </option>
+
+                                <option value="DELIVERED">
                                     Delivered
                                 </option>
-
                             </select>
 
                         </div>
@@ -461,9 +429,7 @@
                                         Delivery ID
                                     </th>
 
-                                    <th>
-                                        Order
-                                    </th>
+                                   
 
                                     <th>
                                         Customer
@@ -474,7 +440,7 @@
                                     </th>
 
                                     <th>
-                                        Date
+                                        Date/Total
                                     </th>
 
                                     <th>

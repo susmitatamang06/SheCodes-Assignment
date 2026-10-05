@@ -1,71 +1,15 @@
 /* =========================================
+   API
+========================================= */
+
+const API_BASE_URL = "http://127.0.0.1:8080";
+
+
+/* =========================================
    PAYMENT DATA
 ========================================= */
 
-const payments = [
-
-    {
-        paymentId: "PAY1001",
-        orderId: "QB993272",
-        customer: "Susmita Tamang",
-        amount: 550,
-        method: "Cash on Delivery",
-        date: "11 September 2026",
-        status: "Completed"
-    },
-
-    {
-        paymentId: "PAY1002",
-        orderId: "QB126849",
-        customer: "Priya Rai",
-        amount: 1270,
-        method: "eSewa",
-        date: "11 September 2026",
-        status: "Completed"
-    },
-
-    {
-        paymentId: "PAY1003",
-        orderId: "QB1003",
-        customer: "John Smith",
-        amount: 500,
-        method: "Card",
-        date: "10 September 2026",
-        status: "Pending"
-    },
-
-    {
-        paymentId: "PAY1004",
-        orderId: "QB1004",
-        customer: "Anita Sharma",
-        amount: 750,
-        method: "Khalti",
-        date: "9 September 2026",
-        status: "Completed"
-    },
-
-    {
-        paymentId: "PAY1005",
-        orderId: "QB1005",
-        customer: "Richa Gurung",
-        amount: 900,
-        method: "Card",
-        date: "8 September 2026",
-        status: "Failed"
-    },
-
-    {
-        paymentId: "PAY1006",
-        orderId: "QB1006",
-        customer: "Mingma Sherpa",
-        amount: 650,
-        method: "Cash on Delivery",
-        date: "7 September 2026",
-        status: "Refunded"
-    }
-
-];
-
+let payments = [];
 
 
 /* =========================================
@@ -109,17 +53,89 @@ const paymentDetails =
     document.getElementById("payment-details");
 
 
-
 /* =========================================
    FORMAT CURRENCY
 ========================================= */
 
 function formatCurrency(amount) {
 
-    return `Rs.${amount.toFixed(2)}`;
+    const numericAmount =
+        Number(amount);
 
+    if (Number.isNaN(numericAmount)) {
+        return "Rs.0.00";
+    }
+
+    return `Rs.${numericAmount.toFixed(2)}`;
 }
 
+
+/* =========================================
+   FORMAT DATE
+========================================= */
+
+function formatDate(dateValue) {
+
+    if (!dateValue) {
+        return "N/A";
+    }
+
+    const date =
+        new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+        return "N/A";
+    }
+
+    return date.toLocaleDateString(
+        "en-GB",
+        {
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        }
+    );
+}
+
+
+/* =========================================
+   DISPLAY PAYMENT METHOD
+========================================= */
+
+function formatPaymentMethod(method) {
+
+    if (method === "CASH") {
+        return "Cash on Delivery";
+    }
+
+    if (method === "ONLINE") {
+        return "Online";
+    }
+
+    return method || "N/A";
+}
+
+
+/* =========================================
+   DISPLAY PAYMENT STATUS
+========================================= */
+
+function formatPaymentStatus(status) {
+
+    if (status === "PAID") {
+        return "Paid";
+    }
+
+    if (status === "PENDING") {
+        return "Pending";
+    }
+
+    if (status === "FAILED") {
+        return "Failed";
+    }
+
+    return status || "Unknown";
+}
 
 
 /* =========================================
@@ -128,12 +144,210 @@ function formatCurrency(amount) {
 
 function getStatusClass(status) {
 
-    return status
+    return String(status)
         .toLowerCase()
         .replace(/\s+/g, "-");
-
 }
 
+
+/* =========================================
+   LOAD PAYMENTS
+========================================= */
+
+async function loadPayments() {
+
+    try {
+
+        const [
+            paymentsResponse,
+            ordersResponse,
+            customersResponse
+        ] = await Promise.all([
+
+            fetch(
+                `${API_BASE_URL}/api/payments`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            ),
+
+            fetch(
+                `${API_BASE_URL}/api/orders`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            ),
+
+            fetch(
+                `${API_BASE_URL}/api/users/customers`,
+                {
+                    method: "GET",
+                    credentials: "include"
+                }
+            )
+
+        ]);
+
+
+        if (!paymentsResponse.ok) {
+
+            throw new Error(
+                `Unable to load payments. Status: ${paymentsResponse.status}`
+            );
+        }
+
+
+        if (!ordersResponse.ok) {
+
+            throw new Error(
+                `Unable to load orders. Status: ${ordersResponse.status}`
+            );
+        }
+
+
+        if (!customersResponse.ok) {
+
+            throw new Error(
+                `Unable to load customers. Status: ${customersResponse.status}`
+            );
+        }
+
+
+        const paymentData =
+            await paymentsResponse.json();
+
+        const orderData =
+            await ordersResponse.json();
+
+        const customerData =
+            await customersResponse.json();
+
+
+        /*
+         * Match:
+         *
+         * payment.order_id
+         *       ↓
+         * order.order_id
+         *       ↓
+         * order.user_id
+         *       ↓
+         * customer.id
+         */
+
+        payments =
+            paymentData.map(payment => {
+
+                const order =
+                    orderData.find(
+                        item =>
+                            item.order_id ===
+                            payment.order_id
+                    );
+
+
+                let customerName =
+                    "Unknown Customer";
+
+
+                if (order) {
+
+                    const customer =
+                        customerData.find(
+                            item =>
+                                item.id ===
+                                order.user_id
+                        );
+
+
+                    if (customer) {
+
+                        customerName =
+                            customer.name;
+
+                    }
+
+                }
+
+
+                return {
+
+                    paymentId:
+                        payment.payment_id,
+
+                    orderId:
+                        payment.order_id,
+
+                    customer:
+                        customerName,
+
+                    amount:
+                        Number(payment.amount),
+
+                    method:
+                        formatPaymentMethod(
+                            payment.payment_method
+                        ),
+
+                    date:
+                        formatDate(
+                            payment.payment_date
+                        ),
+
+                    status:
+                        formatPaymentStatus(
+                            payment.payment_status
+                        )
+
+                };
+
+            });
+
+
+        console.log(
+            "Payments loaded from database:",
+            payments
+        );
+
+
+        updateSummary();
+
+        filterPayments();
+
+
+    } catch (error) {
+
+        console.error(
+            "Error loading payments:",
+            error
+        );
+
+
+        paymentTableBody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="8"
+                    style="text-align: center;"
+                >
+
+                    Unable to load payment data.
+
+                </td>
+
+            </tr>
+
+        `;
+
+        noResults.style.display =
+            "none";
+
+    }
+
+}
 
 
 /* =========================================
@@ -147,14 +361,16 @@ function displayPayments(paymentList) {
 
     if (paymentList.length === 0) {
 
-        noResults.style.display = "block";
+        noResults.style.display =
+            "block";
 
         return;
 
     }
 
 
-    noResults.style.display = "none";
+    noResults.style.display =
+        "none";
 
 
     paymentList.forEach(payment => {
@@ -222,7 +438,8 @@ function displayPayments(paymentList) {
             <td>
 
                 <span
-                    class="payment-status ${getStatusClass(payment.status)}">
+                    class="payment-status ${getStatusClass(payment.status)}"
+                >
 
                     ${payment.status}
 
@@ -235,7 +452,8 @@ function displayPayments(paymentList) {
 
                 <button
                     class="view-payment-btn"
-                    data-payment-id="${payment.paymentId}">
+                    data-payment-id="${payment.paymentId}"
+                >
 
                     <i class="fa-solid fa-eye"></i>
 
@@ -255,7 +473,6 @@ function displayPayments(paymentList) {
 }
 
 
-
 /* =========================================
    UPDATE SUMMARY
 ========================================= */
@@ -268,13 +485,15 @@ function updateSummary() {
 
     const completed =
         payments.filter(
-            payment => payment.status === "Completed"
+            payment =>
+                payment.status === "Paid"
         ).length;
 
 
     const pending =
         payments.filter(
-            payment => payment.status === "Pending"
+            payment =>
+                payment.status === "Pending"
         ).length;
 
 
@@ -282,7 +501,7 @@ function updateSummary() {
         payments
             .filter(
                 payment =>
-                    payment.status === "Completed"
+                    payment.status === "Paid"
             )
             .reduce(
                 (sum, payment) =>
@@ -307,7 +526,6 @@ function updateSummary() {
         formatCurrency(revenue);
 
 }
-
 
 
 /* =========================================
@@ -335,13 +553,14 @@ function filterPayments() {
 
 
             const matchesSearch =
-                payment.paymentId
+
+                String(payment.paymentId)
                     .toLowerCase()
                     .includes(search)
 
                 ||
 
-                payment.orderId
+                String(payment.orderId)
                     .toLowerCase()
                     .includes(search)
 
@@ -380,7 +599,6 @@ function filterPayments() {
 }
 
 
-
 /* =========================================
    OPEN PAYMENT DETAILS
 ========================================= */
@@ -389,14 +607,14 @@ function openPaymentDetails(paymentId) {
 
     const payment =
         payments.find(
-            item => item.paymentId === paymentId
+            item =>
+                String(item.paymentId) ===
+                String(paymentId)
         );
 
 
     if (!payment) {
-
         return;
-
     }
 
 
@@ -500,7 +718,6 @@ function openPaymentDetails(paymentId) {
 }
 
 
-
 /* =========================================
    VIEW BUTTON EVENT
 ========================================= */
@@ -516,9 +733,7 @@ paymentTableBody.addEventListener(
 
 
         if (!button) {
-
             return;
-
         }
 
 
@@ -530,7 +745,6 @@ paymentTableBody.addEventListener(
 
     }
 );
-
 
 
 /* =========================================
@@ -555,7 +769,6 @@ methodFilter.addEventListener(
 );
 
 
-
 /* =========================================
    CLOSE MODAL
 ========================================= */
@@ -568,7 +781,6 @@ modalClose.addEventListener(
 
     }
 );
-
 
 
 /* =========================================
@@ -587,7 +799,6 @@ modal.addEventListener(
 
     }
 );
-
 
 
 /* =========================================
@@ -612,11 +823,15 @@ document.addEventListener(
 );
 
 
-
 /* =========================================
    INITIAL LOAD
 ========================================= */
 
-updateSummary();
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-displayPayments(payments);
+        loadPayments();
+
+    }
+);

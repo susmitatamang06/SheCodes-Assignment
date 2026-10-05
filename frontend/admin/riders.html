@@ -34,13 +34,13 @@
 
         <nav class="navbar flex between wrapper">
 
-            <!-- Logo -->
+
             <a href="index.html" class="logo">
                 Quick Bites
             </a>
 
 
-            <!-- Desktop Navigation -->
+            <!-- ================= DESKTOP NAVIGATION ================= -->
 
             <ul class="navlist flex gap-3">
 
@@ -80,16 +80,23 @@
                     </a>
                 </li>
 
+                <li>
+                    <a href="payments.html">
+                        Payments
+                    </a>
+                </li>
+
             </ul>
 
 
-            <!-- Header Actions -->
+            <!-- ================= RIGHT SIDE ACTIONS ================= -->
 
             <div class="desktop-action flex gap-2">
 
-                <!-- Profile -->
 
-                <a href="profile.html" class="admin-profile">
+                <!-- Admin Profile -->
+
+                <a href="#" class="admin-profile">
 
                     <i class="fa-regular fa-circle-user"></i>
 
@@ -98,13 +105,12 @@
 
                 <!-- Logout -->
 
-                <a href="../public/index.html" class="logout-link">
+                <a href="../public/index.html" class="btn" id="logout-btn">
 
-                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Logout
 
-                    <span>
-                        Logout
-                    </span>
+                    <i class="fa-solid fa-right-from-bracket">
+                    </i>
 
                 </a>
 
@@ -118,7 +124,6 @@
                 </a>
 
             </div>
-
 
             <!-- Mobile Menu -->
 
@@ -220,41 +225,6 @@
                 <input type="text" id="rider-search" placeholder="Search riders..." autocomplete="off">
 
             </div>
-
-
-            <!-- Filter -->
-
-            <select id="status-filter" class="status-filter">
-
-                <option value="All">
-                    All Riders
-                </option>
-
-                <option value="Available">
-                    Available
-                </option>
-
-                <option value="Busy">
-                    Busy
-                </option>
-
-                <option value="Offline">
-                    Offline
-                </option>
-
-            </select>
-
-
-            <!-- Add Rider -->
-
-            <button type="button" id="add-rider-btn" class="add-rider-btn">
-
-                <i class="fa-solid fa-plus"></i>
-
-                Add New Rider
-
-            </button>
-
         </section>
 
 

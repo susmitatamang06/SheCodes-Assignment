@@ -55,63 +55,93 @@
 
 <body>
 
-
-    <!-- =========================================
-         HEADER
-    ========================================== -->
-
-    <header>
-
+<header>
         <nav class="navbar flex between wrapper">
 
 
-            <!-- LOGO -->
-
-            <a
-                href="dashboard.html"
-                class="logo">
-
+            <a href="index.html" class="logo">
                 Quick Bites
-
             </a>
 
 
-            <!-- ADMIN ACTIONS -->
+            <!-- ================= DESKTOP NAVIGATION ================= -->
 
-            <div class="admin-actions flex gap-2">
+            <ul class="navlist flex gap-3">
+
+                <li>
+                    <a href="index.html">
+                        Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a href="orders.html">
+                        Orders
+                    </a>
+                </li>
+
+                <li>
+                    <a href="products.html">
+                        Products
+                    </a>
+                </li>
+
+                <li>
+                    <a href="customers.html">
+                        Customers
+                    </a>
+                </li>
+
+                <li>
+                    <a href="riders.html">
+                        Riders
+                    </a>
+                </li>
+
+                <li>
+                    <a href="categories.html">
+                        Categories
+                    </a>
+                </li>
+
+                <li>
+                    <a href="payments.html" class="active">
+                        Payments
+                    </a>
+                </li>
+
+            </ul>
 
 
-                <!-- ADMIN PROFILE -->
+            <!-- ================= RIGHT SIDE ACTIONS ================= -->
 
-                <a
-                    href="#"
-                    class="admin-profile"
-                    title="Admin Profile">
+            <div class="desktop-action flex gap-2">
+
+
+                <!-- Admin Profile -->
+
+                <a href="#" class="admin-profile">
 
                     <i class="fa-regular fa-circle-user"></i>
 
                 </a>
 
 
-                <!-- LOGOUT -->
+                <!-- Logout -->
 
-                <a
-                    href="#"
-                    class="logout-link"
-                    id="logout-btn">
+                <a href="../public/index.html" class="btn" id="logout-btn">
 
                     Logout
 
-                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <i class="fa-solid fa-right-from-bracket">
+                    </i>
 
                 </a>
 
 
-                <!-- HAMBURGER -->
+                <!-- Hamburger -->
 
-                <a
-                    href="#"
-                    class="admin-hamburger">
+                <a href="#" class="hamburger">
 
                     <i class="fa-solid fa-bars"></i>
 
@@ -119,214 +149,136 @@
 
             </div>
 
+
+            <!-- =====================================================
+                 MOBILE MENU
+                 ===================================================== -->
+
+            <ul class="mobile-menu">
+
+
+                <!-- Dashboard -->
+
+                <li>
+
+                    <a href="index.html">
+
+                        <i class="fa-solid fa-chart-line"></i>
+
+                        Dashboard
+
+                    </a>
+
+                </li>
+
+
+                <!-- Orders -->
+
+                <li>
+
+                    <a href="#">
+
+                        <i class="fa-solid fa-bag-shopping"></i>
+
+                        Orders
+
+                    </a>
+
+                </li>
+
+
+                <!-- Products -->
+
+                <li>
+
+                    <a href="#">
+
+                        <i class="fa-solid fa-utensils"></i>
+
+                        Products
+
+                    </a>
+
+                </li>
+
+
+                <!-- Customers -->
+
+                <li>
+
+                    <a href="#">
+
+                        <i class="fa-solid fa-users"></i>
+
+                        Customers
+
+                    </a>
+
+                </li>
+
+
+                <!-- Riders -->
+
+                <li>
+
+                    <a href="#">
+
+                        <i class="fa-solid fa-motorcycle"></i>
+
+                        Riders
+
+                    </a>
+
+                </li>
+
+
+                <!-- Categories -->
+
+                <li>
+
+                    <a href="#">
+
+                        <i class="fa-solid fa-layer-group"></i>
+
+                        Categories
+
+                    </a>
+
+                </li>
+
+
+                <!-- Profile -->
+
+                <li>
+
+                    <a href="#">
+
+                        <i class="fa-regular fa-circle-user"></i>
+
+                        Profile
+
+                    </a>
+
+                </li>
+
+
+                <!-- Logout -->
+
+                <li>
+
+                    <a href="#" class="mobile-logout">
+
+                        Logout
+
+                        <i class="fa-solid fa-right-from-bracket"></i>
+
+                    </a>
+
+                </li>
+
+            </ul>
+
         </nav>
-
-
-        <!-- =========================================
-             ADMIN NAVIGATION
-        ========================================== -->
-
-        <nav class="admin-nav">
-
-            <div class="wrapper">
-
-                <ul class="admin-nav-list">
-
-
-                    <li>
-
-                        <a href="dashboard.html">
-
-                            <i class="fa-solid fa-gauge-high"></i>
-
-                            Dashboard
-
-                        </a>
-
-                    </li>
-
-
-                    <li>
-
-                        <a href="orders.html">
-
-                            <i class="fa-solid fa-bag-shopping"></i>
-
-                            Orders
-
-                        </a>
-
-                    </li>
-
-
-                    <li>
-
-                        <a href="products.html">
-
-                            <i class="fa-solid fa-utensils"></i>
-
-                            Products
-
-                        </a>
-
-                    </li>
-
-
-                    <li>
-
-                        <a href="customers.html">
-
-                            <i class="fa-solid fa-users"></i>
-
-                            Customers
-
-                        </a>
-
-                    </li>
-
-
-                    <li>
-
-                        <a href="riders.html">
-
-                            <i class="fa-solid fa-motorcycle"></i>
-
-                            Riders
-
-                        </a>
-
-                    </li>
-
-
-                    <li>
-
-                        <a href="categories.html">
-
-                            <i class="fa-solid fa-layer-group"></i>
-
-                            Categories
-
-                        </a>
-
-                    </li>
-
-
-                    <li class="active">
-
-                        <a href="payments.html">
-
-                            <i class="fa-solid fa-credit-card"></i>
-
-                            Payments
-
-                        </a>
-
-                    </li>
-
-
-                </ul>
-
-            </div>
-
-        </nav>
-
-
-        <!-- MOBILE MENU -->
-
-        <ul class="mobile-menu admin-mobile-menu">
-
-
-            <li>
-
-                <a href="dashboard.html">
-
-                    <i class="fa-solid fa-gauge-high"></i>
-
-                    Dashboard
-
-                </a>
-
-            </li>
-
-
-            <li>
-
-                <a href="orders.html">
-
-                    <i class="fa-solid fa-bag-shopping"></i>
-
-                    Orders
-
-                </a>
-
-            </li>
-
-
-            <li>
-
-                <a href="products.html">
-
-                    <i class="fa-solid fa-utensils"></i>
-
-                    Products
-
-                </a>
-
-            </li>
-
-
-            <li>
-
-                <a href="customers.html">
-
-                    <i class="fa-solid fa-users"></i>
-
-                    Customers
-
-                </a>
-
-            </li>
-
-
-            <li>
-
-                <a href="riders.html">
-
-                    <i class="fa-solid fa-motorcycle"></i>
-
-                    Riders
-
-                </a>
-
-            </li>
-
-
-            <li>
-
-                <a href="categories.html">
-
-                    <i class="fa-solid fa-layer-group"></i>
-
-                    Categories
-
-                </a>
-
-            </li>
-
-
-            <li>
-
-                <a href="payments.html">
-
-                    <i class="fa-solid fa-credit-card"></i>
-
-                    Payments
-
-                </a>
-
-            </li>
-
-        </ul>
 
     </header>
 
