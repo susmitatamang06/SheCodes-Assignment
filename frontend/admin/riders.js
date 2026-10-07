@@ -284,7 +284,6 @@ function renderRiders(riderData) {
 
 }
 
-
 /* =========================================
    CREATE RIDER CARD
 ========================================= */
@@ -302,6 +301,7 @@ function createRiderCard(rider) {
 
 
     /* Get first letter for avatar */
+
     const firstLetter =
         rider.name
             ? rider.name
@@ -391,6 +391,25 @@ function createRiderCard(rider) {
 
         </div>
 
+
+        <div class="rider-actions">
+
+            <button
+                type="button"
+                class="rider-action-btn delete-rider-btn"
+                data-rider-id="${escapeHTML(
+                    rider.id
+                )}"
+            >
+
+                <i class="fa-solid fa-trash"></i>
+
+                Delete Rider
+
+            </button>
+
+        </div>
+
     `;
 
 
@@ -398,6 +417,91 @@ function createRiderCard(rider) {
 
 }
 
+/* =========================================
+   DELETE RIDER
+========================================= */
+
+async function deleteRider(riderId) {
+
+    const rider =
+        riders.find(function (item) {
+
+            return Number(item.id) ===
+                Number(riderId);
+
+        });
+
+
+    if (!rider) {
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            `Are you sure you want to delete rider "${rider.name}"?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/users/${riderId}`,
+                {
+                    method: "DELETE",
+                    credentials: "include"
+                }
+            );
+
+
+        const message =
+            await response.text();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                message ||
+                `Failed to delete rider. Status: ${response.status}`
+            );
+
+        }
+
+
+        alert(
+            "Rider deleted successfully."
+        );
+
+
+        await loadRiders();
+
+
+    } catch (error) {
+
+        console.error(
+            "Delete rider error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Could not delete rider."
+        );
+
+    }
+
+}
 
 /* =========================================
    SEARCH
@@ -550,6 +654,34 @@ document.addEventListener(
         setupSearch();
 
         setupMobileMenu();
+
+
+        document.addEventListener(
+            "click",
+            function(event) {
+
+                const deleteButton =
+                    event.target.closest(
+                        ".delete-rider-btn"
+                    );
+
+
+                if (!deleteButton) {
+
+                    return;
+
+                }
+
+
+                const riderId =
+                    deleteButton.dataset.riderId;
+
+
+                deleteRider(riderId);
+
+            }
+        );
+
 
         loadRiders();
 

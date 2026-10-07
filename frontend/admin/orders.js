@@ -137,9 +137,6 @@ async function loadOrders() {
 
         // ------------------------------------------
         // Load deliveries
-        //
-        // This is important because the deliveries
-        // table contains the currently assigned rider.
         // ------------------------------------------
 
         await loadDeliveries();
@@ -241,14 +238,6 @@ async function loadRiders() {
 
 // ==================================================
 // LOAD DELIVERIES
-//
-// Delivery records contain:
-// - order_id
-// - rider_id
-// - delivery_status
-//
-// We use this to determine which rider is already
-// assigned to each order.
 // ==================================================
 
 async function loadDeliveries() {
@@ -307,7 +296,9 @@ function getFilteredOrders() {
 
     const searchTerm =
         searchInput
-            ? searchInput.value.trim().toLowerCase()
+            ? searchInput.value
+                .trim()
+                .toLowerCase()
             : "";
 
 
@@ -339,17 +330,21 @@ function getFilteredOrders() {
         .filter(order => {
 
             const orderId =
-                String(order.order_id || "")
-                    .toLowerCase();
+                String(
+                    order.order_id || ""
+                ).toLowerCase();
 
 
             const userId =
-                String(order.user_id || "")
-                    .toLowerCase();
+                String(
+                    order.user_id || ""
+                ).toLowerCase();
 
 
             const status =
-                String(order.order_status || "")
+                String(
+                    order.order_status || ""
+                )
                     .trim()
                     .toLowerCase();
 
@@ -402,9 +397,10 @@ function displayOrders() {
     if (orderCount) {
 
         orderCount.textContent =
-            `${filteredOrders.length} ${filteredOrders.length === 1
-                ? "order"
-                : "orders"
+            `${filteredOrders.length} ${
+                filteredOrders.length === 1
+                    ? "order"
+                    : "orders"
             }`;
 
     }
@@ -446,7 +442,9 @@ function displayOrders() {
     filteredOrders.forEach(order => {
 
         const items =
-            getOrderItems(order.order_id);
+            getOrderItems(
+                order.order_id
+            );
 
 
         const total =
@@ -472,8 +470,8 @@ function displayOrders() {
                     <span class="order-id">
 
                         #${escapeHTML(
-            order.order_id
-        )}
+                            order.order_id
+                        )}
 
                     </span>
 
@@ -481,8 +479,8 @@ function displayOrders() {
                     <span class="order-customer">
 
                         Customer #${escapeHTML(
-            order.user_id
-        )}
+                            order.user_id
+                        )}
 
                     </span>
 
@@ -492,10 +490,10 @@ function displayOrders() {
                         <i class="fa-regular fa-calendar"></i>
 
                         ${escapeHTML(
-            formatDate(
-                order.order_date
-            )
-        )}
+                            formatDate(
+                                order.order_date
+                            )
+                        )}
 
                     </span>
 
@@ -504,15 +502,15 @@ function displayOrders() {
 
                 <span
                     class="order-status ${getStatusClass(
-            order.order_status
-        )}"
+                        order.order_status
+                    )}"
                 >
 
                     ${escapeHTML(
-            formatStatus(
-                order.order_status
-            )
-        )}
+                        formatStatus(
+                            order.order_status
+                        )
+                    )}
 
                 </span>
 
@@ -533,8 +531,8 @@ function displayOrders() {
                     <div class="order-items-list">
 
                         ${escapeHTML(
-            getItemNames(items)
-        )}
+                            getItemNames(items)
+                        )}
 
                     </div>
 
@@ -566,16 +564,17 @@ function displayOrders() {
                 <select
                     class="order-status-select"
                     data-id="${escapeHTML(
-            order.order_id
-        )}"
+                        order.order_id
+                    )}"
                 >
 
                     <option
                         value="PLACED"
-                        ${order.order_status === "PLACED"
-                ? "selected"
-                : ""
-            }
+                        ${
+                            order.order_status === "PLACED"
+                                ? "selected"
+                                : ""
+                        }
                     >
                         Placed
                     </option>
@@ -583,10 +582,11 @@ function displayOrders() {
 
                     <option
                         value="CONFIRMED"
-                        ${order.order_status === "CONFIRMED"
-                ? "selected"
-                : ""
-            }
+                        ${
+                            order.order_status === "CONFIRMED"
+                                ? "selected"
+                                : ""
+                        }
                     >
                         Confirmed
                     </option>
@@ -594,10 +594,11 @@ function displayOrders() {
 
                     <option
                         value="PREPARING"
-                        ${order.order_status === "PREPARING"
-                ? "selected"
-                : ""
-            }
+                        ${
+                            order.order_status === "PREPARING"
+                                ? "selected"
+                                : ""
+                        }
                     >
                         Preparing
                     </option>
@@ -605,10 +606,11 @@ function displayOrders() {
 
                     <option
                         value="READY"
-                        ${order.order_status === "READY"
-                ? "selected"
-                : ""
-            }
+                        ${
+                            order.order_status === "READY"
+                                ? "selected"
+                                : ""
+                        }
                     >
                         Ready
                     </option>
@@ -616,10 +618,11 @@ function displayOrders() {
 
                     <option
                         value="OUT_FOR_DELIVERY"
-                        ${order.order_status === "OUT_FOR_DELIVERY"
-                ? "selected"
-                : ""
-            }
+                        ${
+                            order.order_status === "OUT_FOR_DELIVERY"
+                                ? "selected"
+                                : ""
+                        }
                     >
                         Out for Delivery
                     </option>
@@ -627,10 +630,11 @@ function displayOrders() {
 
                     <option
                         value="DELIVERED"
-                        ${order.order_status === "DELIVERED"
-                ? "selected"
-                : ""
-            }
+                        ${
+                            order.order_status === "DELIVERED"
+                                ? "selected"
+                                : ""
+                        }
                     >
                         Delivered
                     </option>
@@ -638,10 +642,11 @@ function displayOrders() {
 
                     <option
                         value="CANCELLED"
-                        ${order.order_status === "CANCELLED"
-                ? "selected"
-                : ""
-            }
+                        ${
+                            order.order_status === "CANCELLED"
+                                ? "selected"
+                                : ""
+                        }
                     >
                         Cancelled
                     </option>
@@ -650,6 +655,25 @@ function displayOrders() {
 
 
                 ${createRiderAssignmentHTML(order)}
+
+
+                <div class="order-actions">
+
+                    <button
+                        type="button"
+                        class="delete-order-btn"
+                        data-order-id="${escapeHTML(
+                            order.order_id
+                        )}"
+                    >
+
+                        <i class="fa-solid fa-trash"></i>
+
+                        Delete Order
+
+                    </button>
+
+                </div>
 
             </div>
 
@@ -665,6 +689,7 @@ function displayOrders() {
 
 }
 
+
 // ==================================================
 // CREATE RIDER ASSIGNMENT HTML
 // ==================================================
@@ -678,7 +703,7 @@ function createRiderAssignmentHTML(order) {
 
 
     // ------------------------------------------
-    // Find existing delivery for this order
+    // Find existing delivery
     // ------------------------------------------
 
     const existingDelivery =
@@ -694,7 +719,7 @@ function createRiderAssignmentHTML(order) {
 
 
     // ------------------------------------------
-    // Get currently assigned rider
+    // Get assigned rider
     // ------------------------------------------
 
     const assignedRiderId =
@@ -716,7 +741,7 @@ function createRiderAssignmentHTML(order) {
 
 
     // ------------------------------------------
-    // Don't assign cancelled/delivered orders
+    // Cancelled / delivered
     // ------------------------------------------
 
     if (
@@ -746,7 +771,7 @@ function createRiderAssignmentHTML(order) {
 
 
     // ------------------------------------------
-    // No riders available
+    // No riders
     // ------------------------------------------
 
     if (
@@ -782,55 +807,51 @@ function createRiderAssignmentHTML(order) {
     let options = `
 
         <option value="">
-
             Select Rider
-
         </option>
 
     `;
 
 
-    riders.forEach(
-        rider => {
+    riders.forEach(rider => {
 
-            const isSelected =
-                assignedRiderId !== null &&
-                Number(rider.id) ===
-                assignedRiderId;
+        const isSelected =
+            assignedRiderId !== null &&
+            Number(rider.id) ===
+            assignedRiderId;
 
 
-            options += `
+        options += `
 
-                <option
-                    value="${escapeHTML(
-                        rider.id
-                    )}"
-                    ${
-                        isSelected
-                            ? "selected"
-                            : ""
-                    }
-                >
+            <option
+                value="${escapeHTML(
+                    rider.id
+                )}"
+                ${
+                    isSelected
+                        ? "selected"
+                        : ""
+                }
+            >
 
-                    ${escapeHTML(
-                        rider.name ||
-                        "Unnamed Rider"
-                    )}
+                ${escapeHTML(
+                    rider.name ||
+                    "Unnamed Rider"
+                )}
 
-                    ${
-                        rider.email
-                            ? ` - ${escapeHTML(
-                                rider.email
-                            )}`
-                            : ""
-                    }
+                ${
+                    rider.email
+                        ? ` - ${escapeHTML(
+                            rider.email
+                        )}`
+                        : ""
+                }
 
-                </option>
+            </option>
 
-            `;
+        `;
 
-        }
-    );
+    });
 
 
     // ------------------------------------------
@@ -863,10 +884,6 @@ function createRiderAssignmentHTML(order) {
             : "fa-user-check";
 
 
-    // ------------------------------------------
-    // Return UI
-    // ------------------------------------------
-
     return `
 
         <div class="rider-assignment">
@@ -878,15 +895,11 @@ function createRiderAssignmentHTML(order) {
                 <div>
 
                     <strong>
-
                         ${assignmentTitle}
-
                     </strong>
 
                     <small>
-
                         ${assignmentDescription}
-
                     </small>
 
                 </div>
@@ -928,161 +941,9 @@ function createRiderAssignmentHTML(order) {
 
 }
 
+
 // ==================================================
 // ATTACH ORDER EVENTS
-// ==================================================
-
-function attachOrderEvents() {
-
-    // ------------------------------------------
-    // Order status
-    // ------------------------------------------
-
-    document
-        .querySelectorAll(".order-status-select")
-        .forEach(select => {
-
-            select.addEventListener(
-                "change",
-                function () {
-
-                    updateOrderStatus(
-                        this.dataset.id,
-                        this.value
-                    );
-
-                }
-            );
-
-        });
-
-
-    // ------------------------------------------
-    // View order
-    // ------------------------------------------
-
-    document
-        .querySelectorAll(".view-order-btn")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                function () {
-
-                    showOrderDetails(
-                        this.dataset.id
-                    );
-
-                }
-            );
-
-        });
-
-
-    // ------------------------------------------
-    // Rider assignment
-    // ------------------------------------------
-
-    document
-        .querySelectorAll(".assign-rider-btn")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                async function (event) {
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    const orderId =
-                        this.getAttribute(
-                            "data-order-id"
-                        );
-
-
-                    if (!orderId) {
-
-                        console.error(
-                            "No order ID found on rider button."
-                        );
-
-                        alert(
-                            "Could not identify the order."
-                        );
-
-                        return;
-
-                    }
-
-
-                    await assignRiderToOrder(
-                        orderId,
-                        this
-                    );
-
-                }
-            );
-
-        });
-
-}
-// ==================================================
-// GET ORDER ITEMS
-// ==================================================
-
-function getOrderItems(orderId) {
-
-    return orderItems.filter(item =>
-
-        Number(
-            item.order_id
-        ) ===
-        Number(
-            orderId
-        )
-
-    );
-
-}
-
-
-// ==================================================
-// GET ITEM NAMES
-// ==================================================
-
-function getItemNames(items) {
-
-    if (
-        !items ||
-        items.length === 0
-    ) {
-
-        return "No items available";
-
-    }
-
-
-    return items
-
-        .map(item => {
-
-            const quantity =
-                Number(
-                    item.quantity || 0
-                );
-
-
-            return `${ item.food_name } × ${ quantity } `;
-
-        })
-
-        .join(" · ");
-
-}
-
-
-// ==================================================
-// ATTACH EVENTS
 // ==================================================
 
 function attachOrderEvents() {
@@ -1148,10 +1009,37 @@ function attachOrderEvents() {
 
             button.addEventListener(
                 "click",
-                function () {
+                async function (event) {
 
-                    assignRiderToOrder(
-                        this.dataset.orderId,
+                    event.preventDefault();
+                    event.stopPropagation();
+
+
+                    const orderId =
+                        this.getAttribute(
+                            "data-order-id"
+                        );
+
+
+                    if (!orderId) {
+
+                        console.error(
+                            "No order ID found on rider button."
+                        );
+
+
+                        alert(
+                            "Could not identify the order."
+                        );
+
+
+                        return;
+
+                    }
+
+
+                    await assignRiderToOrder(
+                        orderId,
                         this
                     );
 
@@ -1160,7 +1048,114 @@ function attachOrderEvents() {
 
         });
 
+
+    // ------------------------------------------
+    // Delete order
+    // ------------------------------------------
+
+    document
+        .querySelectorAll(
+            ".delete-order-btn"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                async function (event) {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+
+                    const orderId =
+                        this.getAttribute(
+                            "data-order-id"
+                        );
+
+
+                    if (!orderId) {
+
+                        console.error(
+                            "No order ID found on delete button."
+                        );
+
+
+                        alert(
+                            "Could not identify the order."
+                        );
+
+
+                        return;
+
+                    }
+
+
+                    await deleteOrder(
+                        orderId
+                    );
+
+                }
+            );
+
+        });
+
 }
+
+
+// ==================================================
+// GET ORDER ITEMS
+// ==================================================
+
+function getOrderItems(orderId) {
+
+    return orderItems.filter(item =>
+
+        Number(
+            item.order_id
+        ) ===
+        Number(
+            orderId
+        )
+
+    );
+
+}
+
+
+// ==================================================
+// GET ITEM NAMES
+// ==================================================
+
+function getItemNames(items) {
+
+    if (
+        !items ||
+        items.length === 0
+    ) {
+
+        return "No items available";
+
+    }
+
+
+    return items
+
+        .map(item => {
+
+            const quantity =
+                Number(
+                    item.quantity || 0
+                );
+
+
+            return `${item.food_name} × ${quantity}`;
+
+        })
+
+        .join(" · ");
+
+}
+
 
 // ==================================================
 // ASSIGN RIDER TO ORDER
@@ -1178,7 +1173,7 @@ async function assignRiderToOrder(
 
 
     // ------------------------------------------
-    // Find the select belonging to this order
+    // Find rider select
     // ------------------------------------------
 
     const riderSelect =
@@ -1196,9 +1191,11 @@ async function assignRiderToOrder(
             orderId
         );
 
+
         alert(
             "Could not find the rider selection box."
         );
+
 
         return;
 
@@ -1219,7 +1216,9 @@ async function assignRiderToOrder(
             "Please select a rider first."
         );
 
+
         riderSelect.focus();
+
 
         return;
 
@@ -1244,6 +1243,7 @@ async function assignRiderToOrder(
             "Selected rider could not be found."
         );
 
+
         return;
 
     }
@@ -1267,6 +1267,7 @@ async function assignRiderToOrder(
             "Order could not be found."
         );
 
+
         return;
 
     }
@@ -1280,6 +1281,7 @@ async function assignRiderToOrder(
 
         button.disabled = true;
 
+
         button.innerHTML = `
 
             <i class="fa-solid fa-spinner fa-spin"></i>
@@ -1292,10 +1294,6 @@ async function assignRiderToOrder(
 
 
     try {
-
-        // --------------------------------------
-        // Create / update delivery
-        // --------------------------------------
 
         const delivery = {
 
@@ -1326,10 +1324,8 @@ async function assignRiderToOrder(
                     credentials: "include",
 
                     headers: {
-
                         "Content-Type":
                             "application/json"
-
                     },
 
                     body:
@@ -1361,18 +1357,10 @@ async function assignRiderToOrder(
         }
 
 
-        // --------------------------------------
-        // Success
-        // --------------------------------------
-
         alert(
             `Rider ${selectedRider.name} assigned successfully.`
         );
 
-
-        // --------------------------------------
-        // Reload everything
-        // --------------------------------------
 
         await loadOrders();
 
@@ -1394,6 +1382,7 @@ async function assignRiderToOrder(
 
             button.disabled = false;
 
+
             button.innerHTML = `
 
                 <i class="fa-solid fa-user-check"></i>
@@ -1407,6 +1396,7 @@ async function assignRiderToOrder(
     }
 
 }
+
 
 // ==================================================
 // UPDATE ORDER STATUS
@@ -1470,18 +1460,22 @@ async function updateOrderStatus(
 
         const response =
             await fetch(
-                `${ API_BASE_URL } /api/orders / ${ orderId } `,
+                `${API_BASE_URL}/api/orders/${orderId}`,
                 {
                     method: "PUT",
+
                     credentials: "include",
+
                     headers: {
                         "Content-Type":
                             "application/json"
                     },
+
                     body:
                         JSON.stringify(
                             updatedOrder
                         )
+
                 }
             );
 
@@ -1489,7 +1483,7 @@ async function updateOrderStatus(
         if (!response.ok) {
 
             throw new Error(
-                `Failed to update order: ${ response.status } `
+                `Failed to update order: ${response.status}`
             );
 
         }
@@ -1584,7 +1578,7 @@ function showOrderDetails(
     if (modalOrderId) {
 
         modalOrderId.textContent =
-            `#${ order.order_id } `;
+            `#${order.order_id}`;
 
     }
 
@@ -1620,7 +1614,7 @@ function showOrderDetails(
 
                     return `
 
-        < div class="modal-item" >
+                        <div class="modal-item">
 
                             <div class="modal-item-info">
 
@@ -1645,9 +1639,9 @@ function showOrderDetails(
 
                             </div>
 
-                        </div >
+                        </div>
 
-        `;
+                    `;
 
                 })
                 .join("");
@@ -1655,9 +1649,11 @@ function showOrderDetails(
     } else {
 
         itemsHTML = `
-        < p >
-        No items available.
-            </p >
+
+            <p>
+                No items available.
+            </p>
+
         `;
 
     }
@@ -1667,7 +1663,7 @@ function showOrderDetails(
 
         orderDetailsContent.innerHTML = `
 
-        < div class="detail-row" >
+            <div class="detail-row">
 
                 <strong>
                     Customer
@@ -1679,7 +1675,7 @@ function showOrderDetails(
                     )}
                 </span>
 
-            </div >
+            </div>
 
 
             <div class="detail-row">
@@ -1786,7 +1782,7 @@ function showOrderDetails(
 
             </div>
 
-    `;
+        `;
 
     }
 
@@ -1846,7 +1842,8 @@ if (orderModal) {
         function (event) {
 
             if (
-                event.target === orderModal
+                event.target ===
+                orderModal
             ) {
 
                 closeOrderModal();
@@ -1855,6 +1852,135 @@ if (orderModal) {
 
         }
     );
+
+}
+
+
+// ==================================================
+// DELETE ORDER
+// ==================================================
+
+async function deleteOrder(orderId) {
+
+    console.log(
+        "Delete order clicked:",
+        orderId
+    );
+
+
+    // ------------------------------------------
+    // Find order
+    // ------------------------------------------
+
+    const order =
+        orders.find(
+            item =>
+                Number(item.order_id) ===
+                Number(orderId)
+        );
+
+
+    if (!order) {
+
+        console.error(
+            "Order not found:",
+            orderId
+        );
+
+
+        alert(
+            "Order could not be found."
+        );
+
+
+        return;
+
+    }
+
+
+    // ------------------------------------------
+    // Confirm deletion
+    // ------------------------------------------
+
+    const confirmed =
+        confirm(
+            `Are you sure you want to delete Order #${order.order_id}?`
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    try {
+
+        console.log(
+            "Sending delete request for order:",
+            orderId
+        );
+
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/orders/${orderId}`,
+                {
+                    method: "DELETE",
+
+                    credentials: "include"
+                }
+            );
+
+
+        const message =
+            await response.text();
+
+
+        console.log(
+            "Delete order response:",
+            response.status,
+            message
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                message ||
+                `Failed to delete order. Status: ${response.status}`
+            );
+
+        }
+
+
+        alert(
+            "Order deleted successfully."
+        );
+
+
+        // --------------------------------------
+        // Reload orders
+        // --------------------------------------
+
+        await loadOrders();
+
+
+    } catch (error) {
+
+        console.error(
+            "Delete order error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Could not delete order."
+        );
+
+    }
 
 }
 

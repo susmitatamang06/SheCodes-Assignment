@@ -177,17 +177,31 @@ function renderCustomers(customerData) {
 
             <div class="customer-info">
 
-                <p>
-                    <i class="fa-solid fa-envelope"></i>
-                    ${escapeHTML(customer.email)}
-                </p>
+    <p>
+        <i class="fa-solid fa-envelope"></i>
+        ${escapeHTML(customer.email)}
+    </p>
 
-                <p>
-                    <i class="fa-solid fa-id-card"></i>
-                    Customer #${escapeHTML(customer.id)}
-                </p>
+    <p>
+        <i class="fa-solid fa-id-card"></i>
+        Customer #${escapeHTML(customer.id)}
+    </p>
 
-            </div>
+</div>
+
+
+<div class="customer-actions">
+
+    <button
+        type="button"
+        class="delete-customer-btn"
+        data-customer-id="${escapeHTML(customer.id)}"
+    >
+        <i class="fa-solid fa-trash"></i>
+        Delete Customer
+    </button>
+
+</div>
 
         `;
 
@@ -198,7 +212,84 @@ function renderCustomers(customerData) {
 
 }
 
+/* =========================================
+   DELETE CUSTOMER
+========================================= */
 
+async function deleteCustomer(customerId) {
+
+    const customer =
+        customers.find(
+            customer =>
+                Number(customer.id) ===
+                Number(customerId)
+        );
+
+    if (!customer) {
+        return;
+    }
+
+
+    const confirmed =
+        confirm(
+            `Are you sure you want to delete customer "${customer.name}"?`
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}/api/users/${customerId}`,
+                {
+                    method: "DELETE",
+                    credentials: "include"
+                }
+            );
+
+
+        const message =
+            await response.text();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                message ||
+                `Failed to delete customer. Status: ${response.status}`
+            );
+
+        }
+
+
+        alert(
+            "Customer deleted successfully."
+        );
+
+
+        await loadCustomers();
+
+
+    } catch (error) {
+
+        console.error(
+            "Delete customer error:",
+            error
+        );
+
+
+        alert(
+            error.message ||
+            "Could not delete customer."
+        );
+
+    }
+
+}
 /* =========================================
    SEARCH
 ========================================= */
@@ -294,6 +385,29 @@ document.addEventListener(
             );
 
         }
+        document.addEventListener(
+    "click",
+    function (event) {
+
+        const deleteButton =
+            event.target.closest(
+                ".delete-customer-btn"
+            );
+
+
+        if (!deleteButton) {
+            return;
+        }
+
+
+        const customerId =
+            deleteButton.dataset.customerId;
+
+
+        deleteCustomer(customerId);
+
+    }
+);
 
 
         loadCustomers();

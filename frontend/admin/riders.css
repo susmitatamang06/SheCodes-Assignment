@@ -527,11 +527,11 @@
 .delete-rider-btn {
     background: #fff0f0;
 
-    color: #c62828;
+    color: rgb(226, 112, 5);
 }
 
 .delete-rider-btn:hover {
-    background: #c62828;
+    background: rgb(255, 123, 0);
 
     color: var(--pure-white);
 }
